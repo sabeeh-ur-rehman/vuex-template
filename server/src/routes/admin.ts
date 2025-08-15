@@ -11,7 +11,105 @@ const schema = z.object({
 });
 
 /**
- * Admin table routes with validation, pagination and audit logging.
+ * @openapi
+ * /admin:
+ *   get:
+ *     summary: List councils
+ *     tags:
+ *       - Admin
+ *     responses:
+ *       '200':
+ *         description: A paginated list of councils
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Council'
+ *                 total:
+ *                   type: number
+ *                 page:
+ *                   type: number
+ *   post:
+ *     summary: Create a council
+ *     tags:
+ *       - Admin
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Council'
+ *     responses:
+ *       '201':
+ *         description: Created council
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Council'
+ * /admin/{id}:
+ *   get:
+ *     summary: Get a council by id
+ *     tags:
+ *       - Admin
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Council found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Council'
+ *       '404':
+ *         description: Not found
+ *   put:
+ *     summary: Update a council
+ *     tags:
+ *       - Admin
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Council'
+ *     responses:
+ *       '200':
+ *         description: Updated council
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Council'
+ *       '404':
+ *         description: Not found
+ *   delete:
+ *     summary: Delete a council
+ *     tags:
+ *       - Admin
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '204':
+ *         description: Council deleted
+ *       '404':
+ *         description: Not found
  */
 
 router.get('/', guard('admin-tables', 'read'), async (req: AuthenticatedRequest, res) => {
