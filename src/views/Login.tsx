@@ -3,8 +3,8 @@
 // React Imports
 import { useState } from 'react'
 
-// Next Imports
-import { useRouter } from 'next/navigation'
+// Next Auth Imports
+import { signIn } from 'next-auth/react'
 
 // MUI Imports
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -72,7 +72,6 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const borderedLightIllustration = '/images/illustrations/auth/v2-login-light-border.png'
 
   // Hooks
-  const router = useRouter()
   const { settings } = useSettings()
   const theme = useTheme()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
@@ -119,16 +118,27 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
           <form
             noValidate
             autoComplete='off'
-            onSubmit={e => {
+            onSubmit={async e => {
               e.preventDefault()
-              router.push('/')
+              const formData = new FormData(e.currentTarget)
+              const email = formData.get('email') as string
+              const password = formData.get('password') as string
+
+              await signIn('credentials', { email, password, callbackUrl: '/' })
             }}
             className='flex flex-col gap-5'
           >
-            <CustomTextField autoFocus fullWidth label='Email or Username' placeholder='Enter your email or username' />
+            <CustomTextField
+              autoFocus
+              fullWidth
+              label='Email or Username'
+              name='email'
+              placeholder='Enter your email or username'
+            />
             <CustomTextField
               fullWidth
               label='Password'
+              name='password'
               placeholder='············'
               id='outlined-adornment-password'
               type={isPasswordShown ? 'text' : 'password'}
