@@ -24,6 +24,7 @@
     "@mui/lab": "6.0.0-beta.19",
     "@mui/material": "6.2.1",
     "@mui/material-nextjs": "6.2.1",
+    "bull": "^4.16.5",
     "classnames": "2.5.1",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
