@@ -7,6 +7,7 @@ const options = {
       title: 'API Documentation',
       version: '1.0.0',
     },
+    servers: [{ url: '/api' }],
     components: {
       schemas: {
         Customer: {
