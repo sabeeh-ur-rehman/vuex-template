@@ -11,7 +11,105 @@ const schema = z.object({
 });
 
 /**
- * Step routes with validation, pagination and audit logging.
+ * @openapi
+ * /steps:
+ *   get:
+ *     summary: List steps
+ *     tags:
+ *       - Steps
+ *     responses:
+ *       '200':
+ *         description: A paginated list of steps
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Step'
+ *                 total:
+ *                   type: number
+ *                 page:
+ *                   type: number
+ *   post:
+ *     summary: Create a step
+ *     tags:
+ *       - Steps
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Step'
+ *     responses:
+ *       '201':
+ *         description: Created step
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Step'
+ * /steps/{id}:
+ *   get:
+ *     summary: Get a step by id
+ *     tags:
+ *       - Steps
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Step found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Step'
+ *       '404':
+ *         description: Not found
+ *   put:
+ *     summary: Update a step
+ *     tags:
+ *       - Steps
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Step'
+ *     responses:
+ *       '200':
+ *         description: Updated step
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Step'
+ *       '404':
+ *         description: Not found
+ *   delete:
+ *     summary: Delete a step
+ *     tags:
+ *       - Steps
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '204':
+ *         description: Step deleted
+ *       '404':
+ *         description: Not found
  */
 
 router.get('/', guard('steps', 'read'), async (req: AuthenticatedRequest, res) => {
