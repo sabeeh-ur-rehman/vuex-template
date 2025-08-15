@@ -12,7 +12,105 @@ const schema = z.object({
 });
 
 /**
- * Membership routes with validation, pagination and audit logging.
+ * @openapi
+ * /memberships:
+ *   get:
+ *     summary: List memberships
+ *     tags:
+ *       - Memberships
+ *     responses:
+ *       '200':
+ *         description: A paginated list of memberships
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Membership'
+ *                 total:
+ *                   type: number
+ *                 page:
+ *                   type: number
+ *   post:
+ *     summary: Create a membership
+ *     tags:
+ *       - Memberships
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Membership'
+ *     responses:
+ *       '201':
+ *         description: Created membership
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Membership'
+ * /memberships/{id}:
+ *   get:
+ *     summary: Get a membership by id
+ *     tags:
+ *       - Memberships
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Membership found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Membership'
+ *       '404':
+ *         description: Not found
+ *   put:
+ *     summary: Update a membership
+ *     tags:
+ *       - Memberships
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Membership'
+ *     responses:
+ *       '200':
+ *         description: Updated membership
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Membership'
+ *       '404':
+ *         description: Not found
+ *   delete:
+ *     summary: Delete a membership
+ *     tags:
+ *       - Memberships
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '204':
+ *         description: Membership deleted
+ *       '404':
+ *         description: Not found
  */
 
 router.get('/', guard('memberships', 'read'), async (req: AuthenticatedRequest, res) => {
