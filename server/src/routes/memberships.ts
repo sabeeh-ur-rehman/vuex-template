@@ -7,4 +7,17 @@ const schema = z.object({
   role: z.enum(['admin', 'member']),
 });
 
+/**
+ * @openapi
+ * /memberships:
+ *   get:
+ *     summary: List memberships.
+ *   post:
+ *     summary: Create a membership.
+ * /memberships/{id}:
+ *   put:
+ *     summary: Update a membership.
+ *   delete:
+ *     summary: Delete a membership.
+ */
 export default createTenantRouter('memberships', Membership, schema);

@@ -9,6 +9,15 @@ const loginSchema = z.object({
   userId: z.string(),
 });
 
+/**
+ * @openapi
+ * /auth/login:
+ *   post:
+ *     summary: Authenticate user and return a tenant token.
+ *     responses:
+ *       '200':
+ *         description: JWT token returned.
+ */
 router.post('/login', (req, res) => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) {

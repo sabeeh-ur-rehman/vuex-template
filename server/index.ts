@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import Redis from 'ioredis';
 import router from './routes';
+import swaggerUi from 'swagger-ui-express';
+import spec from './src/config/swagger';
 
 dotenv.config();
 
@@ -22,6 +24,7 @@ async function bootstrap() {
     redis.on('connect', () => console.log('Redis connected'));
     redis.on('error', err => console.error('Redis error', err));
 
+    app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(spec));
     app.use('/api', router);
 
     app.listen(PORT, () => {
