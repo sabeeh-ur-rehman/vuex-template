@@ -11,7 +11,105 @@ const schema = z.object({
 });
 
 /**
- * Proposal routes with validation, pagination and audit logging.
+ * @openapi
+ * /proposals:
+ *   get:
+ *     summary: List proposals
+ *     tags:
+ *       - Proposals
+ *     responses:
+ *       '200':
+ *         description: A paginated list of proposals
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Proposal'
+ *                 total:
+ *                   type: number
+ *                 page:
+ *                   type: number
+ *   post:
+ *     summary: Create a proposal
+ *     tags:
+ *       - Proposals
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Proposal'
+ *     responses:
+ *       '201':
+ *         description: Created proposal
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Proposal'
+ * /proposals/{id}:
+ *   get:
+ *     summary: Get a proposal by id
+ *     tags:
+ *       - Proposals
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Proposal found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Proposal'
+ *       '404':
+ *         description: Not found
+ *   put:
+ *     summary: Update a proposal
+ *     tags:
+ *       - Proposals
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Proposal'
+ *     responses:
+ *       '200':
+ *         description: Updated proposal
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Proposal'
+ *       '404':
+ *         description: Not found
+ *   delete:
+ *     summary: Delete a proposal
+ *     tags:
+ *       - Proposals
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '204':
+ *         description: Proposal deleted
+ *       '404':
+ *         description: Not found
  */
 
 router.get('/', guard('proposals', 'read'), async (req: AuthenticatedRequest, res) => {
