@@ -11,7 +11,105 @@ const schema = z.object({
 });
 
 /**
- * Email message routes with validation, pagination and audit logging.
+ * @openapi
+ * /emails:
+ *   get:
+ *     summary: List email messages
+ *     tags:
+ *       - Emails
+ *     responses:
+ *       '200':
+ *         description: A paginated list of email messages
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/EmailMsg'
+ *                 total:
+ *                   type: number
+ *                 page:
+ *                   type: number
+ *   post:
+ *     summary: Create an email message
+ *     tags:
+ *       - Emails
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/EmailMsg'
+ *     responses:
+ *       '201':
+ *         description: Created email message
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/EmailMsg'
+ * /emails/{id}:
+ *   get:
+ *     summary: Get an email message by id
+ *     tags:
+ *       - Emails
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Email message found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/EmailMsg'
+ *       '404':
+ *         description: Not found
+ *   put:
+ *     summary: Update an email message
+ *     tags:
+ *       - Emails
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/EmailMsg'
+ *     responses:
+ *       '200':
+ *         description: Updated email message
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/EmailMsg'
+ *       '404':
+ *         description: Not found
+ *   delete:
+ *     summary: Delete an email message
+ *     tags:
+ *       - Emails
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '204':
+ *         description: Email message deleted
+ *       '404':
+ *         description: Not found
  */
 
 router.get('/', guard('emails', 'read'), async (req: AuthenticatedRequest, res) => {
