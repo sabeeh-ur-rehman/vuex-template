@@ -11,7 +11,7 @@ describe('copyDocument', () => {
       ),
     };
 
-    const result = await copyDocument(model, '1', { status: 'new' });
+    const result = await copyDocument(model, '1', { status: 'new' } as any);
 
     expect(model.findById).toHaveBeenCalledWith('1');
     expect(model.create).toHaveBeenCalledWith({ title: 'Original Issue', status: 'new' });

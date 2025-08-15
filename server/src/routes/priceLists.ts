@@ -1,83 +1,92 @@
+import { Router } from 'express';
 import { z } from 'zod';
 import PriceList from '../models/PriceList';
-import { createTenantRouter } from './crud';
+import { guard, AuthenticatedRequest } from '../auth/guard';
+import AuditLog from '../models/AuditLog';
+
+const router = Router();
 
 const schema = z.object({
   name: z.string(),
 });
 
 /**
- * @openapi
- * /price-lists:
- *   get:
- *     summary: List price lists.
- *     responses:
- *       '200':
- *         description: Price lists fetched.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/PriceList'
- *             example:
- *               - tenantId: '507f1f77bcf86cd799439011'
- *                 name: 'Standard'
- *   post:
- *     summary: Create a price list.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/PriceList'
- *           example:
- *             tenantId: '507f1f77bcf86cd799439011'
- *             name: 'Standard'
- *     responses:
- *       '200':
- *         description: Price list created.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/PriceList'
- *             example:
- *               tenantId: '507f1f77bcf86cd799439011'
- *               name: 'Standard'
- * /price-lists/{id}:
- *   put:
- *     summary: Update a price list.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/PriceList'
- *           example:
- *             tenantId: '507f1f77bcf86cd799439011'
- *             name: 'Updated list'
- *     responses:
- *       '200':
- *         description: Price list updated.
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/PriceList'
- *             example:
- *               tenantId: '507f1f77bcf86cd799439011'
- *               name: 'Updated list'
- *   delete:
- *     summary: Delete a price list.
- *     responses:
- *       '200':
- *         description: Price list deleted.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
+ * Price list routes with validation, pagination and audit logging.
  */
-export default createTenantRouter('price-lists', PriceList, schema);
+
+router.get('/', guard('price-lists', 'read'), async (req: AuthenticatedRequest, res) => {
+  const page = parseInt((req.query.page as string) ?? '1', 10);
+  const limit = parseInt((req.query.limit as string) ?? '20', 10);
+  const skip = (page - 1) * limit;
+
+  const [items, total] = await Promise.all([
+    PriceList.find({ tenantId: req.tenantId }).skip(skip).limit(limit).lean(),
+    PriceList.countDocuments({ tenantId: req.tenantId }),
+  ]);
+
+  res.json({ items, total, page });
+});
+
+router.get('/:id', guard('price-lists', 'read'), async (req: AuthenticatedRequest, res) => {
+  const list = await PriceList.findOne({ _id: req.params.id, tenantId: req.tenantId }).lean();
+  if (!list) {
+    return res.status(404).json({ message: 'Not found' });
+  }
+  res.json(list);
+});
+
+router.post('/', guard('price-lists', 'create'), async (req: AuthenticatedRequest, res) => {
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json(parsed.error.flatten());
+  }
+  const created = await PriceList.create({ ...parsed.data, tenantId: req.tenantId });
+  await AuditLog.create({
+    tenantId: req.tenantId!,
+    action: 'create',
+    resource: 'price-lists',
+    subjectId: created._id,
+    createdAt: new Date(),
+  });
+  res.status(201).json(created);
+});
+
+router.put('/:id', guard('price-lists', 'update'), async (req: AuthenticatedRequest, res) => {
+  const parsed = schema.partial().safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json(parsed.error.flatten());
+  }
+  const updated = await PriceList.findOneAndUpdate(
+    { _id: req.params.id, tenantId: req.tenantId },
+    parsed.data,
+    { new: true }
+  );
+  if (!updated) {
+    return res.status(404).json({ message: 'Not found' });
+  }
+  await AuditLog.create({
+    tenantId: req.tenantId!,
+    action: 'update',
+    resource: 'price-lists',
+    subjectId: req.params.id,
+    createdAt: new Date(),
+  });
+  res.json(updated);
+});
+
+router.delete('/:id', guard('price-lists', 'delete'), async (req: AuthenticatedRequest, res) => {
+  const deleted = await PriceList.findOneAndDelete({ _id: req.params.id, tenantId: req.tenantId });
+  if (!deleted) {
+    return res.status(404).json({ message: 'Not found' });
+  }
+  await AuditLog.create({
+    tenantId: req.tenantId!,
+    action: 'delete',
+    resource: 'price-lists',
+    subjectId: req.params.id,
+    createdAt: new Date(),
+  });
+  res.status(204).send();
+});
+
+export default router;
