@@ -11,7 +11,105 @@ const schema = z.object({
 });
 
 /**
- * Tenant routes with validation, pagination and audit logging.
+ * @openapi
+ * /tenants:
+ *   get:
+ *     summary: List tenants
+ *     tags:
+ *       - Tenants
+ *     responses:
+ *       '200':
+ *         description: A paginated list of tenants
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Tenant'
+ *                 total:
+ *                   type: number
+ *                 page:
+ *                   type: number
+ *   post:
+ *     summary: Create a tenant
+ *     tags:
+ *       - Tenants
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Tenant'
+ *     responses:
+ *       '201':
+ *         description: Created tenant
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Tenant'
+ * /tenants/{id}:
+ *   get:
+ *     summary: Get a tenant by id
+ *     tags:
+ *       - Tenants
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Tenant found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Tenant'
+ *       '404':
+ *         description: Not found
+ *   put:
+ *     summary: Update a tenant
+ *     tags:
+ *       - Tenants
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Tenant'
+ *     responses:
+ *       '200':
+ *         description: Updated tenant
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Tenant'
+ *       '404':
+ *         description: Not found
+ *   delete:
+ *     summary: Delete a tenant
+ *     tags:
+ *       - Tenants
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '204':
+ *         description: Tenant deleted
+ *       '404':
+ *         description: Not found
  */
 
 router.get('/', guard('tenants', 'read'), async (req: AuthenticatedRequest, res) => {
