@@ -11,7 +11,105 @@ const schema = z.object({
 });
 
 /**
- * Variation routes with validation, pagination and audit logging.
+ * @openapi
+ * /variations:
+ *   get:
+ *     summary: List variations
+ *     tags:
+ *       - Variations
+ *     responses:
+ *       '200':
+ *         description: A paginated list of variations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Variation'
+ *                 total:
+ *                   type: number
+ *                 page:
+ *                   type: number
+ *   post:
+ *     summary: Create a variation
+ *     tags:
+ *       - Variations
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Variation'
+ *     responses:
+ *       '201':
+ *         description: Created variation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Variation'
+ * /variations/{id}:
+ *   get:
+ *     summary: Get a variation by id
+ *     tags:
+ *       - Variations
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Variation found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Variation'
+ *       '404':
+ *         description: Not found
+ *   put:
+ *     summary: Update a variation
+ *     tags:
+ *       - Variations
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Variation'
+ *     responses:
+ *       '200':
+ *         description: Updated variation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Variation'
+ *       '404':
+ *         description: Not found
+ *   delete:
+ *     summary: Delete a variation
+ *     tags:
+ *       - Variations
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '204':
+ *         description: Variation deleted
+ *       '404':
+ *         description: Not found
  */
 
 router.get('/', guard('variations', 'read'), async (req: AuthenticatedRequest, res) => {
