@@ -9,6 +9,13 @@ const options = {
     },
     servers: [{ url: '/api' }],
     components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
       schemas: {
         Customer: {
           type: 'object',
@@ -388,6 +395,7 @@ const options = {
         },
       },
     },
+    security: [{ bearerAuth: [] }],
   },
   apis: ['server/src/routes/*.ts'],
 };

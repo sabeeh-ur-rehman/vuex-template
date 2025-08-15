@@ -14,6 +14,7 @@ const loginSchema = z.object({
  * /auth/login:
  *   post:
  *     summary: Authenticate user and return a tenant token.
+ *     security: []
  *     requestBody:
  *       required: true
  *       content:
