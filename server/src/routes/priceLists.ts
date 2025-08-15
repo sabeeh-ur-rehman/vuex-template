@@ -11,7 +11,105 @@ const schema = z.object({
 });
 
 /**
- * Price list routes with validation, pagination and audit logging.
+ * @openapi
+ * /price-lists:
+ *   get:
+ *     summary: List price lists
+ *     tags:
+ *       - Price Lists
+ *     responses:
+ *       '200':
+ *         description: A paginated list of price lists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/PriceList'
+ *                 total:
+ *                   type: number
+ *                 page:
+ *                   type: number
+ *   post:
+ *     summary: Create a price list
+ *     tags:
+ *       - Price Lists
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PriceList'
+ *     responses:
+ *       '201':
+ *         description: Created price list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PriceList'
+ * /price-lists/{id}:
+ *   get:
+ *     summary: Get a price list by id
+ *     tags:
+ *       - Price Lists
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Price list found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PriceList'
+ *       '404':
+ *         description: Not found
+ *   put:
+ *     summary: Update a price list
+ *     tags:
+ *       - Price Lists
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/PriceList'
+ *     responses:
+ *       '200':
+ *         description: Updated price list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PriceList'
+ *       '404':
+ *         description: Not found
+ *   delete:
+ *     summary: Delete a price list
+ *     tags:
+ *       - Price Lists
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '204':
+ *         description: Price list deleted
+ *       '404':
+ *         description: Not found
  */
 
 router.get('/', guard('price-lists', 'read'), async (req: AuthenticatedRequest, res) => {
