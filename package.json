@@ -71,6 +71,7 @@
     "tailwindcss-logical": "3.0.1",
     "tsx": "4.19.2",
     "typescript": "5.5.4",
+    "vitest": "^3.2.4",
     "wait-on": "^8.0.4"
   },
   "resolutions": {
