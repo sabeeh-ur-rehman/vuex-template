@@ -11,7 +11,105 @@ const schema = z.object({
 });
 
 /**
- * Project routes with validation, pagination and audit logging.
+ * @openapi
+ * /projects:
+ *   get:
+ *     summary: List projects
+ *     tags:
+ *       - Projects
+ *     responses:
+ *       '200':
+ *         description: A paginated list of projects
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Project'
+ *                 total:
+ *                   type: number
+ *                 page:
+ *                   type: number
+ *   post:
+ *     summary: Create a project
+ *     tags:
+ *       - Projects
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Project'
+ *     responses:
+ *       '201':
+ *         description: Created project
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ * /projects/{id}:
+ *   get:
+ *     summary: Get a project by id
+ *     tags:
+ *       - Projects
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Project found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ *       '404':
+ *         description: Not found
+ *   put:
+ *     summary: Update a project
+ *     tags:
+ *       - Projects
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Project'
+ *     responses:
+ *       '200':
+ *         description: Updated project
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Project'
+ *       '404':
+ *         description: Not found
+ *   delete:
+ *     summary: Delete a project
+ *     tags:
+ *       - Projects
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '204':
+ *         description: Project deleted
+ *       '404':
+ *         description: Not found
  */
 
 router.get('/', guard('projects', 'read'), async (req: AuthenticatedRequest, res) => {
