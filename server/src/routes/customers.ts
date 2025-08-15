@@ -11,7 +11,105 @@ const schema = z.object({
 });
 
 /**
- * Customer routes with validation, pagination and audit logging.
+ * @openapi
+ * /customers:
+ *   get:
+ *     summary: List customers
+ *     tags:
+ *       - Customers
+ *     responses:
+ *       '200':
+ *         description: A paginated list of customers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 items:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Customer'
+ *                 total:
+ *                   type: number
+ *                 page:
+ *                   type: number
+ *   post:
+ *     summary: Create a customer
+ *     tags:
+ *       - Customers
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Customer'
+ *     responses:
+ *       '201':
+ *         description: Created customer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Customer'
+ * /customers/{id}:
+ *   get:
+ *     summary: Get a customer by id
+ *     tags:
+ *       - Customers
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '200':
+ *         description: Customer found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Customer'
+ *       '404':
+ *         description: Not found
+ *   put:
+ *     summary: Update a customer
+ *     tags:
+ *       - Customers
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Customer'
+ *     responses:
+ *       '200':
+ *         description: Updated customer
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Customer'
+ *       '404':
+ *         description: Not found
+ *   delete:
+ *     summary: Delete a customer
+ *     tags:
+ *       - Customers
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       '204':
+ *         description: Customer deleted
+ *       '404':
+ *         description: Not found
  */
 
 router.get('/', guard('customers', 'read'), async (req: AuthenticatedRequest, res) => {
