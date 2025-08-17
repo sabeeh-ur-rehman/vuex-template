@@ -28,6 +28,21 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 
 **Note:** Bracketed segments like `[id]` denote parameterized paths.
 
+## Development credentials
+
+Populate the database with initial data by running:
+
+```bash
+pnpm seed
+```
+
+The script inserts a demo tenant and an administrator user:
+
+- **Tenant ID:** `000000000000000000000001`
+- **Admin email:** `admin@example.com`
+
+Use these values when developing locally or seeding additional data.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
