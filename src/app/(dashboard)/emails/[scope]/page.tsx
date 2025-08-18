@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+
 import Box from '@mui/material/Box'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
@@ -8,28 +10,46 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
+import Pagination from '@mui/material/Pagination'
+
+import { apiClient } from '@/utils/apiClient'
 
 interface EmailLog {
-  id: number
+  id?: string | number
+  _id?: string
   to: string
   subject: string
   date: string
 }
 
-const emailData: Record<string, EmailLog[]> = {
-  project: [
-    { id: 1, to: 'client@example.com', subject: 'Project Update', date: '2024-06-01' }
-  ],
-  proposal: [
-    { id: 2, to: 'client@example.com', subject: 'Proposal Sent', date: '2024-06-05' }
-  ],
-  variation: [
-    { id: 3, to: 'client@example.com', subject: 'Variation Details', date: '2024-06-10' }
-  ]
-}
-
 const Page = ({ params }: { params: { scope: string } }) => {
-  const emails = emailData[params.scope] || []
+  const { scope } = params
+  const [emails, setEmails] = useState<EmailLog[]>([])
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+
+  useEffect(() => {
+    const fetchEmails = async () => {
+      try {
+        const data = await apiClient.get<{
+          items: EmailLog[]
+          totalPages?: number
+        }>('/emails', { params: { scope, page } })
+
+        setEmails(data.items)
+        setTotalPages(data.totalPages ?? 1)
+      } catch {
+        setEmails([])
+        setTotalPages(1)
+      }
+    }
+
+    fetchEmails()
+  }, [scope, page])
+
+  const handlePageChange = (_: unknown, value: number) => {
+    setPage(value)
+  }
 
   return (
     <Box className='flex flex-col gap-4'>
@@ -43,16 +63,27 @@ const Page = ({ params }: { params: { scope: string } }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {emails.map(email => (
-              <TableRow key={email.id}>
-                <TableCell>{email.to}</TableCell>
-                <TableCell>{email.subject}</TableCell>
-                <TableCell>{email.date}</TableCell>
+            {emails.length > 0 ? (
+              emails.map(email => (
+                <TableRow key={email.id ?? email._id}>
+                  <TableCell>{email.to}</TableCell>
+                  <TableCell>{email.subject}</TableCell>
+                  <TableCell>{email.date}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={3} align='center'>
+                  No email logs found
+                </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </TableContainer>
+      {totalPages > 1 && (
+        <Pagination count={totalPages} page={page} onChange={handlePageChange} />
+      )}
     </Box>
   )
 }
