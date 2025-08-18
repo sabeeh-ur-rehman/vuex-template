@@ -49,7 +49,7 @@ Use these values when developing locally or seeding additional data.
 To populate all supporting collections for a tenant in one step, run:
 
 ```bash
-pnpm tsx scripts/seed-all.ts <tenantId>
+npm run seed-all -- <tenantId>
 ```
 
 Replace `<tenantId>` with the id of the tenant (for example, `000000000000000000000001`).
