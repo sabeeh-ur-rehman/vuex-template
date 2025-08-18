@@ -7,14 +7,36 @@ export const authOptions = {
       name: 'Credentials',
       credentials: {
         email: { label: 'Email', type: 'text' },
-        password: { label: 'Password', type: 'password' }
+        password: { label: 'Password', type: 'password' },
+        tenantId: { label: 'Tenant ID', type: 'text' }
       },
       async authorize(credentials) {
-        if (credentials?.email) {
-          return { id: '1', name: credentials.email, email: credentials.email }
-        }
+        try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: credentials?.email,
+              password: credentials?.password,
+              tenantId: credentials?.tenantId
+            })
+          })
 
-        return null
+          if (!res.ok) {
+            return null
+          }
+
+          const data = await res.json()
+          const { id, name, email, token } = data
+
+          if (!id || !email || !token) {
+            return null
+          }
+
+          return { id, name, email, token }
+        } catch (error) {
+          return null
+        }
       }
     })
   ],
