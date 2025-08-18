@@ -5,10 +5,14 @@ import Redis from 'ioredis';
 import router from './routes';
 import swaggerUi from 'swagger-ui-express';
 import spec from './src/config/swagger';
+import cors from 'cors'; // 👈 add this
 
 dotenv.config();
 
 const app = express();
+
+// ⚠️ Dev-only: allows any origin
+app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 4000;
