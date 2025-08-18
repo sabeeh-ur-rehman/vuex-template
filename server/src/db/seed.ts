@@ -41,9 +41,17 @@ async function seed() {
     tenantId,
     projectId,
     customerId,
-    items: [
-      { description: 'Initial item', quantity: 1, unitPrice: 100 },
+    sections: [
+      {
+        id: 1,
+        title: 'Main Section',
+        complete: false,
+        items: [{ id: 1, name: 'Initial item', qty: 1, price: 100 }],
+      },
     ],
+    showPrices: true,
+    adjustment: 0,
+    subtotal: 100,
     total: 100,
   });
 
