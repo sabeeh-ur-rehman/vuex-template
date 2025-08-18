@@ -1,4 +1,4 @@
-import { getToken } from './auth'
+import { getSession } from 'next-auth/react'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 
@@ -23,7 +23,8 @@ const buildQuery = (params?: Record<string, unknown>) => {
 const request = async <T>(endpoint: string, options: RequestOptions = {}): Promise<T> => {
   const { params, headers, ...init } = options
 
-  const token = getToken()
+  const session = typeof window !== 'undefined' ? await getSession() : null
+  const token = (session as any)?.accessToken as string | undefined
 
   const fetchHeaders: HeadersInit = {
     'Content-Type': 'application/json',
@@ -44,7 +45,7 @@ const request = async <T>(endpoint: string, options: RequestOptions = {}): Promi
   return (await res.json()) as T
 }
 
-export const api = {
+export const apiClient = {
   get: <T>(url: string, options?: RequestOptions) => request<T>(url, { ...options, method: 'GET' }),
   post: <T>(url: string, body?: unknown, options?: RequestOptions) =>
     request<T>(url, { ...options, method: 'POST', body: JSON.stringify(body) }),
@@ -53,4 +54,4 @@ export const api = {
   del: <T>(url: string, options?: RequestOptions) => request<T>(url, { ...options, method: 'DELETE' }),
 }
 
-export default api
+export default apiClient

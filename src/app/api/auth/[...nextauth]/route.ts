@@ -1,6 +1,8 @@
 import NextAuth, { type NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 
+import { apiClient } from '@/utils/apiClient'
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
@@ -12,22 +14,13 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: credentials?.email,
-              password: credentials?.password,
-              tenantId: credentials?.tenantId
-            })
+          const data = await apiClient.post('/auth/login', {
+            email: credentials?.email,
+            password: credentials?.password,
+            tenantId: credentials?.tenantId
           })
 
-          if (!res.ok) {
-            return null
-          }
-
-          const data = await res.json()
-          const { id, name, email, token } = data
+          const { id, name, email, token } = data as any
 
           if (!id || !email || !token) {
             return null
