@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // MUI Imports
 import Box from '@mui/material/Box'
@@ -15,41 +15,84 @@ import TableRow from '@mui/material/TableRow'
 
 // Custom Component Imports
 import CustomTextField from '@core/components/mui/TextField'
+import { apiClient } from '@/utils/apiClient'
 
 interface Variation {
-  id: number
+  _id: string
   name: string
   status: 'Draft' | 'Sent'
 }
 
 interface VariationItem {
-  id: number
+  id?: string
   description: string
   qty: number
   price: number
 }
 
-const initialVariations: Variation[] = [
-  { id: 1, name: 'Base Variation', status: 'Draft' },
-  { id: 2, name: 'Premium Variation', status: 'Sent' }
-]
-
-const initialItems: VariationItem[] = [
-  { id: 1, description: 'Item A', qty: 1, price: 100 },
-  { id: 2, description: 'Item B', qty: 2, price: 50 }
-]
-
 function VariationBuilder({ variation, onClose }: { variation: Variation; onClose: () => void }) {
-  const [items] = useState<VariationItem[]>(initialItems)
+  const [items, setItems] = useState<VariationItem[]>([])
 
-  const handleGeneratePdf = () => {
-    // Placeholder for PDF generation logic
-    alert(`Generated PDF for ${variation.name}`)
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const data = await apiClient.get<Variation & { items: VariationItem[] }>(`/variations/${variation._id}`)
+
+        setItems(data.items || [])
+      } catch {
+        setItems([])
+      }
+    }
+
+    fetchItems()
+  }, [variation._id])
+
+  const handleItemChange = (index: number, field: keyof VariationItem, value: string) => {
+    setItems(prev =>
+      prev.map((item, i) =>
+        i === index
+          ? { ...item, [field]: field === 'qty' || field === 'price' ? Number(value) : value }
+          : item
+      )
+    )
   }
 
-  const handleSendEmail = () => {
-    // Placeholder for email sending logic
-    alert(`Email sent for ${variation.name}`)
+  const handleSave = async () => {
+    try {
+      await apiClient.put(`/variations/${variation._id}`, { items })
+      alert('Variation saved')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to save variation'
+
+      alert(message)
+    }
+  }
+
+  const handleGeneratePdf = async () => {
+    try {
+      const { link } = await apiClient.post<{ link: string }>(`/variations/${variation._id}/pdf`)
+
+      if (link) window.open(link, '_blank')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to generate PDF'
+
+      alert(message)
+    }
+  }
+
+  const handleSendEmail = async () => {
+    const to = window.prompt('Recipient email')
+
+    if (!to) return
+
+    try {
+      await apiClient.post(`/variations/${variation._id}/send-email`, { to })
+      alert('Email sent')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to send email'
+
+      alert(message)
+    }
   }
 
   const total = items.reduce((sum, item) => sum + item.qty * item.price, 0)
@@ -66,11 +109,28 @@ function VariationBuilder({ variation, onClose }: { variation: Variation; onClos
             </TableRow>
           </TableHead>
           <TableBody>
-            {items.map(item => (
-              <TableRow key={item.id}>
-                <TableCell>{item.description}</TableCell>
-                <TableCell>{item.qty}</TableCell>
-                <TableCell>{item.price}</TableCell>
+            {items.map((item, index) => (
+              <TableRow key={item.id || index}>
+                <TableCell>
+                  <CustomTextField
+                    value={item.description}
+                    onChange={e => handleItemChange(index, 'description', e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <CustomTextField
+                    type='number'
+                    value={item.qty}
+                    onChange={e => handleItemChange(index, 'qty', e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <CustomTextField
+                    type='number'
+                    value={item.price}
+                    onChange={e => handleItemChange(index, 'price', e.target.value)}
+                  />
+                </TableCell>
               </TableRow>
             ))}
             <TableRow>
@@ -81,6 +141,9 @@ function VariationBuilder({ variation, onClose }: { variation: Variation; onClos
         </Table>
       </TableContainer>
       <Box className='flex gap-2 justify-end'>
+        <Button variant='contained' onClick={handleSave}>
+          Save
+        </Button>
         <Button variant='outlined' onClick={handleGeneratePdf}>
           Generate PDF
         </Button>
@@ -95,9 +158,25 @@ function VariationBuilder({ variation, onClose }: { variation: Variation; onClos
 
 const Page = ({ params }: { params: { projectId: string } }) => {
   const { projectId } = params
-  const [variations] = useState<Variation[]>(initialVariations)
+  const [variations, setVariations] = useState<Variation[]>([])
   const [selected, setSelected] = useState<Variation | null>(null)
   const [search, setSearch] = useState('')
+
+  useEffect(() => {
+    const fetchVariations = async () => {
+      try {
+        const data = await apiClient.get<{ items: Variation[] }>('/variations', {
+          params: { projectId },
+        })
+
+        setVariations(data.items)
+      } catch {
+        setVariations([])
+      }
+    }
+
+    fetchVariations()
+  }, [projectId])
 
   const filtered = variations.filter(v => v.name.toLowerCase().includes(search.toLowerCase()))
 
@@ -120,7 +199,7 @@ const Page = ({ params }: { params: { projectId: string } }) => {
           </TableHead>
           <TableBody>
             {filtered.map(variation => (
-              <TableRow key={variation.id} hover>
+              <TableRow key={variation._id} hover>
                 <TableCell>{variation.name}</TableCell>
                 <TableCell>{variation.status}</TableCell>
                 <TableCell align='right'>
