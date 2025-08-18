@@ -1,8 +1,16 @@
 import { spawn } from 'child_process'
 import { join } from 'path'
 
+const tsxBin = join(
+  __dirname,
+  '..',
+  'node_modules',
+  '.bin',
+  process.platform === 'win32' ? 'tsx.cmd' : 'tsx',
+)
+
 const scripts = [
-  'seed.ts',
+  '../server/src/db/seed.ts',
   'seed-councils.ts',
   'seed-reps.ts',
   'seed-standard-steps.ts',
@@ -12,12 +20,14 @@ const scripts = [
 
 function run(script: string, tenantId: string) {
   return new Promise<void>((resolve, reject) => {
-    const child = spawn('tsx', [join(__dirname, script), tenantId], { stdio: 'inherit' })
+    const child = spawn(tsxBin, [join(__dirname, script), tenantId], { stdio: 'inherit' })
 
     child.on('close', code => {
       if (code === 0) resolve()
       else reject(new Error(`${script} exited with code ${code}`))
     })
+
+    child.on('error', reject)
   })
 }
 
@@ -25,7 +35,7 @@ async function main() {
   const [, , tenantId] = process.argv
 
   if (!tenantId) {
-    console.error('Usage: tsx scripts/seed-all.ts <tenantId>')
+    console.error('Usage: npm run seed-all -- <tenantId>')
     process.exit(1)
   }
 
