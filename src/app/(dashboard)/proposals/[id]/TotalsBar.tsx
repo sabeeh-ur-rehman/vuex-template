@@ -28,10 +28,20 @@ interface TotalsBarProps {
   onShowPricesChange: (value: boolean) => void
   adjustment: number
   onAdjustmentChange: (value: number) => void
+  subtotal?: number
+  total?: number
 }
 
-const TotalsBar = ({ sections, showPrices, onShowPricesChange, adjustment, onAdjustmentChange }: TotalsBarProps) => {
-  const subtotal = sections.reduce((sum, section) => {
+const TotalsBar = ({
+  sections,
+  showPrices,
+  onShowPricesChange,
+  adjustment,
+  onAdjustmentChange,
+  subtotal,
+  total,
+}: TotalsBarProps) => {
+  const calculatedSubtotal = sections.reduce((sum, section) => {
     return (
       sum +
       section.items.reduce((s, item) => {
@@ -42,7 +52,8 @@ const TotalsBar = ({ sections, showPrices, onShowPricesChange, adjustment, onAdj
     )
   }, 0)
 
-  const total = subtotal + adjustment
+  const displaySubtotal = subtotal ?? calculatedSubtotal
+  const displayTotal = total ?? displaySubtotal + adjustment
 
   return (
     <Box className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end'>
@@ -62,8 +73,8 @@ const TotalsBar = ({ sections, showPrices, onShowPricesChange, adjustment, onAdj
             />
           </Box>
           <Box className='text-right'>
-            <div>Subtotal: {subtotal.toFixed(2)}</div>
-            <div>Total: {total.toFixed(2)}</div>
+            <div>Subtotal: {displaySubtotal.toFixed(2)}</div>
+            <div>Total: {displayTotal.toFixed(2)}</div>
           </Box>
         </>
       )}
