@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 
+import { apiClient } from '@/utils/apiClient'
+
 // MUI Imports
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -19,9 +21,10 @@ import TabList from '@core/components/mui/TabList'
 interface ProjectDrawerProps {
   open: boolean
   onClose: () => void
+  onCreated?: () => void
 }
 
-const ProjectDrawer = ({ open, onClose }: ProjectDrawerProps) => {
+const ProjectDrawer = ({ open, onClose, onCreated }: ProjectDrawerProps) => {
   const [tab, setTab] = useState('steps')
   const [name, setName] = useState('')
   const [steps, setSteps] = useState<string[]>([''])
@@ -34,8 +37,17 @@ const ProjectDrawer = ({ open, onClose }: ProjectDrawerProps) => {
     setSteps(prev => [...prev, ''])
   }
 
-  const handleSave = () => {
-    onClose()
+  const handleSave = async () => {
+    try {
+      await apiClient.post('/projects', { name, steps })
+      onClose()
+      onCreated?.()
+      setName('')
+      setSteps([''])
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err)
+    }
   }
 
   return (

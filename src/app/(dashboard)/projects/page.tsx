@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+import { apiClient } from '@/utils/apiClient'
 
 // MUI Imports
 import Box from '@mui/material/Box'
@@ -21,27 +23,70 @@ import CustomTextField from '@core/components/mui/TextField'
 import ProjectDrawer from './ProjectDrawer'
 
 interface Project {
-  id: number
+  _id: string
   name: string
-  status: 'Active' | 'Archived'
+  status?: 'Active' | 'Archived'
 }
-
-const initialData: Project[] = [
-  { id: 1, name: 'Website Redesign', status: 'Active' },
-  { id: 2, name: 'Mobile App', status: 'Archived' }
-]
 
 const Page = () => {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Archived'>('All')
   const [open, setOpen] = useState(false)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const filtered = initialData.filter(project => {
+  const fetchProjects = async () => {
+    try {
+      setLoading(true)
+      const data = await apiClient.get<{ items: Project[] }>('/projects')
+      setProjects(data.items)
+      setError(null)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load projects'
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchProjects()
+  }, [])
+
+  const handleDelete = async (id: string) => {
+    try {
+      await apiClient.del(`/projects/${id}`)
+      setProjects(prev => prev.filter(project => project._id !== id))
+    } catch (err) {
+      // ignore errors for simplicity
+    }
+  }
+
+  const handleToggleStatus = async (project: Project) => {
+    try {
+      const newStatus = project.status === 'Archived' ? 'Active' : 'Archived'
+      const updated = await apiClient.put<Project>(`/projects/${project._id}`, { status: newStatus })
+      setProjects(prev => prev.map(p => (p._id === project._id ? updated : p)))
+    } catch (err) {
+      // ignore errors for simplicity
+    }
+  }
+
+  const filtered = projects.filter(project => {
     const matchesSearch = project.name.toLowerCase().includes(search.toLowerCase())
     const matchesStatus = statusFilter === 'All' || project.status === statusFilter
-    
+
     return matchesSearch && matchesStatus
   })
+
+  if (loading) {
+    return <Box>Loading...</Box>
+  }
+
+  if (error) {
+    return <Box className='text-red-500'>{error}</Box>
+  }
 
   return (
     <Box className='flex flex-col gap-4'>
@@ -74,20 +119,42 @@ const Page = () => {
             <TableRow>
               <TableCell>Name</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {filtered.map(project => (
-              <TableRow key={project.id} hover>
+              <TableRow key={project._id} hover>
                 <TableCell>{project.name}</TableCell>
                 <TableCell>{project.status}</TableCell>
+                <TableCell>
+                  <Button
+                    size='small'
+                    variant='text'
+                    onClick={() => handleToggleStatus(project)}
+                  >
+                    {project.status === 'Archived' ? 'Activate' : 'Archive'}
+                  </Button>
+                  <Button
+                    size='small'
+                    color='error'
+                    variant='text'
+                    onClick={() => handleDelete(project._id)}
+                  >
+                    Delete
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
 
-      <ProjectDrawer open={open} onClose={() => setOpen(false)} />
+      <ProjectDrawer
+        open={open}
+        onClose={() => setOpen(false)}
+        onCreated={fetchProjects}
+      />
     </Box>
   )
 }
