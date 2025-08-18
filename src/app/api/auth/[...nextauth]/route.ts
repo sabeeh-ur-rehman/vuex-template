@@ -1,7 +1,7 @@
-import NextAuth from 'next-auth'
+import NextAuth, { type NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -42,6 +42,20 @@ export const authOptions = {
   ],
   pages: {
     signIn: '/login'
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.accessToken = (user as any).token
+      }
+
+      return token
+    },
+    async session({ session, token }) {
+      ;(session as any).accessToken = token.accessToken as string
+
+      return session
+    }
   }
 }
 
