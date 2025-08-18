@@ -3,9 +3,11 @@ import { Types } from 'mongoose';
 
 export async function createPriceList(
   tenantId: Types.ObjectId,
-  name: string
+  name: string,
+  description?: string,
+  items?: PriceList['items']
 ): Promise<PriceList> {
-  const created = await PriceListModel.create({ tenantId, name });
+  const created = await PriceListModel.create({ tenantId, name, description, items });
   return created.toObject();
 }
 
@@ -15,14 +17,11 @@ export async function listPriceLists(
   return PriceListModel.find({ tenantId }).lean();
 }
 
-export async function renamePriceList(
+export async function updatePriceList(
   id: string,
   tenantId: Types.ObjectId,
-  name: string
+  data: Partial<Pick<PriceList, 'name' | 'description' | 'items'>>
 ): Promise<PriceList | null> {
-  return PriceListModel.findOneAndUpdate(
-    { _id: id, tenantId },
-    { name },
-    { new: true }
-  ).lean();
+  return PriceListModel.findOneAndUpdate({ _id: id, tenantId }, data, { new: true }).lean();
 }
+

@@ -6,8 +6,17 @@ import AuditLog from '../models/AuditLog';
 
 const router = Router();
 
+const itemSchema = z.object({
+  name: z.string(),
+  unit: z.string().optional(),
+  price: z.number(),
+  description: z.string().optional(),
+});
+
 const schema = z.object({
   name: z.string(),
+  description: z.string().optional(),
+  items: z.array(itemSchema).optional(),
 });
 
 /**
