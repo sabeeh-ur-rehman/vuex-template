@@ -27,8 +27,11 @@ const request = async <T>(endpoint: string, options: RequestOptions = {}): Promi
   const token = (session as any)?.accessToken as string | undefined
 
   const fetchHeaders: HeadersInit = {
-    'Content-Type': 'application/json',
     ...headers,
+  }
+
+  if (init.body && !(init.body instanceof FormData) && !fetchHeaders['Content-Type']) {
+    fetchHeaders['Content-Type'] = 'application/json'
   }
 
   if (token) fetchHeaders['Authorization'] = `Bearer ${token}`
@@ -47,10 +50,22 @@ const request = async <T>(endpoint: string, options: RequestOptions = {}): Promi
 
 export const apiClient = {
   get: <T>(url: string, options?: RequestOptions) => request<T>(url, { ...options, method: 'GET' }),
-  post: <T>(url: string, body?: unknown, options?: RequestOptions) =>
-    request<T>(url, { ...options, method: 'POST', body: JSON.stringify(body) }),
-  put: <T>(url: string, body?: unknown, options?: RequestOptions) =>
-    request<T>(url, { ...options, method: 'PUT', body: JSON.stringify(body) }),
+  post: <T>(url: string, body?: unknown, options?: RequestOptions) => {
+    const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
+    return request<T>(url, {
+      ...options,
+      method: 'POST',
+      body: isFormData ? (body as FormData) : JSON.stringify(body),
+    })
+  },
+  put: <T>(url: string, body?: unknown, options?: RequestOptions) => {
+    const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
+    return request<T>(url, {
+      ...options,
+      method: 'PUT',
+      body: isFormData ? (body as FormData) : JSON.stringify(body),
+    })
+  },
   del: <T>(url: string, options?: RequestOptions) => request<T>(url, { ...options, method: 'DELETE' }),
 }
 

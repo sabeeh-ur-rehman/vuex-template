@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { apiClient } from '@/utils/apiClient'
 
 interface TemplateItem {
   name: string
@@ -10,28 +11,44 @@ interface TemplateItem {
 export default function TemplatesPage() {
   const [history, setHistory] = useState<TemplateItem[]>([])
   const [markers, setMarkers] = useState<string[]>([])
+  const [error, setError] = useState<string | null>(null)
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        const data = await apiClient.get<{ items: TemplateItem[] }>('/templates')
+        setHistory(data.items || [])
+        setError(null)
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to load templates'
+        setError(message)
+      }
+    }
+    loadHistory()
+  }, [])
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-
     if (!file) return
 
-    const reader = new FileReader()
+    const formData = new FormData()
+    formData.append('file', file)
 
-    reader.onload = () => {
-      const text = reader.result?.toString() || ''
-      const found = Array.from(text.match(/{{[^}]+}}/g) || [])
-
-      setMarkers(found)
-      setHistory(prev => [...prev, { name: file.name, markers: found }])
+    try {
+      setError(null)
+      const uploaded = await apiClient.post<TemplateItem>('/templates', formData)
+      setMarkers(uploaded.markers)
+      setHistory(prev => [...prev, uploaded])
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Upload failed'
+      setError(message)
     }
-
-    reader.readAsText(file)
   }
 
   return (
     <div>
       <h1>Templates</h1>
+      {error && <div className='text-red-500'>{error}</div>}
       <input type='file' accept='.docx' onChange={handleUpload} />
       {markers.length > 0 && (
         <div>
