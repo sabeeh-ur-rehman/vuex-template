@@ -24,7 +24,7 @@ const horizontalMenuData = (): HorizontalMenuDataType[] => [
   },
   {
     label: 'Price List',
-    href: '/price-list',
+    href: '/pricelist',
     icon: 'tabler-currency-dollar'
   },
   {
