@@ -11,15 +11,13 @@ const schema = z.object({
   projectId: z.string(),
   name: z.string(),
   status: z.string(),
-  items: z
-    .array(
-      z.object({
-        description: z.string(),
-        qty: z.number(),
-        price: z.number(),
-      })
-    )
-    .optional(),
+  items: z.array(
+    z.object({
+      description: z.string(),
+      qty: z.number(),
+      price: z.number(),
+    }),
+  ),
 });
 
 /**

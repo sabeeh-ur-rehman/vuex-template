@@ -24,7 +24,7 @@ const sectionSchema = z.object({
 
 const schema = z.object({
   projectId: z.string(),
-  customerId: z.string().optional(),
+  customerId: z.string(),
   priceListId: z.string().optional(),
   notes: z.string().optional(),
   sections: z.array(sectionSchema).optional(),
