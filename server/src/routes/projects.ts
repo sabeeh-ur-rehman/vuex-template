@@ -6,8 +6,26 @@ import AuditLog from '../models/AuditLog';
 
 const router = Router();
 
+const dateSchema = z.preprocess(
+  (arg) => (arg ? new Date(arg as string) : undefined),
+  z.date()
+);
+
 const schema = z.object({
   name: z.string(),
+  customerId: z.string().optional(),
+  status: z.string().optional(),
+  startDate: dateSchema.optional(),
+  endDate: dateSchema.optional(),
+  address: z
+    .object({
+      street: z.string().optional(),
+      city: z.string().optional(),
+      state: z.string().optional(),
+      postalCode: z.string().optional(),
+      country: z.string().optional(),
+    })
+    .optional(),
 });
 
 /**
