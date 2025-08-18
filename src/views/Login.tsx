@@ -1,8 +1,5 @@
 'use client'
 
-// React Imports
-import { useState } from 'react'
-
 // Next Auth Imports
 import { signIn } from 'next-auth/react'
 
@@ -11,10 +8,7 @@ import useMediaQuery from '@mui/material/useMediaQuery'
 import { styled, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
-import InputAdornment from '@mui/material/InputAdornment'
-import Checkbox from '@mui/material/Checkbox'
 import Button from '@mui/material/Button'
-import FormControlLabel from '@mui/material/FormControlLabel'
 import Divider from '@mui/material/Divider'
 
 // Third-party Imports
@@ -60,9 +54,6 @@ const MaskImg = styled('img')({
 })
 
 const LoginV2 = ({ mode }: { mode: SystemMode }) => {
-  // States
-  const [isPasswordShown, setIsPasswordShown] = useState(false)
-
   // Vars
   const darkImg = '/images/pages/auth-mask-dark.png'
   const lightImg = '/images/pages/auth-mask-light.png'
@@ -84,8 +75,6 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
     borderedLightIllustration,
     borderedDarkIllustration
   )
-
-  const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
   return (
     <div className='flex bs-full justify-center'>
@@ -121,45 +110,26 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
             onSubmit={async e => {
               e.preventDefault()
               const formData = new FormData(e.currentTarget)
-              const email = formData.get('email') as string
-              const password = formData.get('password') as string
+              const tenantId = formData.get('tenantId') as string
+              const userId = formData.get('userId') as string
 
-              await signIn('credentials', { email, password, callbackUrl: '/' })
+              await signIn('credentials', { tenantId, userId, callbackUrl: '/' })
             }}
             className='flex flex-col gap-5'
           >
             <CustomTextField
               autoFocus
               fullWidth
-              label='Email or Username'
-              name='email'
-              placeholder='Enter your email or username'
+              label='Tenant ID'
+              name='tenantId'
+              placeholder='Enter your tenant ID'
             />
             <CustomTextField
               fullWidth
-              label='Password'
-              name='password'
-              placeholder='············'
-              id='outlined-adornment-password'
-              type={isPasswordShown ? 'text' : 'password'}
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position='end'>
-                      <IconButton edge='end' onClick={handleClickShowPassword} onMouseDown={e => e.preventDefault()}>
-                        <i className={isPasswordShown ? 'tabler-eye-off' : 'tabler-eye'} />
-                      </IconButton>
-                    </InputAdornment>
-                  )
-                }
-              }}
+              label='User ID'
+              name='userId'
+              placeholder='Enter your user ID'
             />
-            <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
-              <FormControlLabel control={<Checkbox />} label='Remember me' />
-              <Typography className='text-end' color='primary.main' component={Link}>
-                Forgot password?
-              </Typography>
-            </div>
             <Button fullWidth variant='contained' type='submit'>
               Login
             </Button>
