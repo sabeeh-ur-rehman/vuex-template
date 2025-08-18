@@ -8,6 +8,7 @@ const router = Router();
 
 const schema = z.object({
   proposalId: z.string(),
+  projectId: z.string(),
   name: z.string(),
   status: z.string(),
   items: z
@@ -128,9 +129,14 @@ router.get('/', guard('variations', 'read'), async (req: AuthenticatedRequest, r
   const limit = parseInt((req.query.limit as string) ?? '20', 10);
   const skip = (page - 1) * limit;
 
+  const filter: Record<string, unknown> = { tenantId: req.tenantId };
+  if (req.query.projectId) {
+    filter.projectId = req.query.projectId;
+  }
+
   const [items, total] = await Promise.all([
-    Variation.find({ tenantId: req.tenantId }).skip(skip).limit(limit).lean(),
-    Variation.countDocuments({ tenantId: req.tenantId }),
+    Variation.find(filter).skip(skip).limit(limit).lean(),
+    Variation.countDocuments(filter),
   ]);
 
   res.json({ items, total, page });

@@ -57,6 +57,7 @@ async function seed() {
 
   await Variation.create({
     tenantId,
+    projectId,
     proposalId,
     name: 'Lighting Upgrade',
     status: 'Draft',
