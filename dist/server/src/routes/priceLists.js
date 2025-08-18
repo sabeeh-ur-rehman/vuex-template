@@ -9,8 +9,16 @@ const PriceList_1 = __importDefault(require("../models/PriceList"));
 const guard_1 = require("../auth/guard");
 const AuditLog_1 = __importDefault(require("../models/AuditLog"));
 const router = (0, express_1.Router)();
+const itemSchema = zod_1.z.object({
+    name: zod_1.z.string(),
+    unit: zod_1.z.string().optional(),
+    price: zod_1.z.number(),
+    description: zod_1.z.string().optional(),
+});
 const schema = zod_1.z.object({
     name: zod_1.z.string(),
+    description: zod_1.z.string().optional(),
+    items: zod_1.z.array(itemSchema).optional(),
 });
 /**
  * @openapi
