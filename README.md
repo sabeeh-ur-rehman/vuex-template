@@ -43,6 +43,33 @@ The script inserts a demo tenant and an administrator user:
 
 Use these values when developing locally or seeding additional data.
 
+### Sample API flow
+
+1. **Seed** the database
+
+   ```bash
+   pnpm seed
+   ```
+
+2. **Log in** to obtain an access token
+
+   ```bash
+   curl -X POST http://localhost:4000/api/auth/login \
+     -H "Content-Type: application/json" \
+     -d '{ "tenantId": "000000000000000000000001", "userId": "000000000000000000000002" }'
+   ```
+
+3. **Call a protected resource** using the token
+
+   ```bash
+   curl http://localhost:4000/api/projects \
+     -H "Authorization: Bearer <TOKEN>"
+   ```
+
+4. **Log out** by posting to NextAuth's sign-out route or by discarding the token.
+
+The API client lives in `src/utils/apiClient.ts`, and the NextAuth configuration resides in `src/app/api/auth/[...nextauth]/route.ts`.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
