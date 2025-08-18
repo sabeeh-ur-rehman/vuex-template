@@ -1,6 +1,8 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+import { apiClient } from '@/utils/apiClient'
 
 interface PriceItem {
   code: string
@@ -12,31 +14,91 @@ export default function PriceListPage() {
   const [code, setCode] = useState('')
   const [price, setPrice] = useState('')
   const [version, setVersion] = useState(1)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
 
-  const handleAdd = (e: React.FormEvent) => {
-    e.preventDefault()
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await apiClient.get<{ items: PriceItem[]; version: number }>(
+          '/price-lists'
+        )
 
-    if (items.some(i => i.code === code)) {
-      alert('Code must be unique')
-      
-return
+        setItems(data.items)
+        setVersion(data.version)
+        setError(null)
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to load price list'
+
+        setError(message)
+      }
     }
 
-    setItems([...items, { code, price: parseFloat(price) }])
-    setCode('')
-    setPrice('')
+    load()
+  }, [])
+
+  const handleAdd = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSuccess(null)
+
+    if (!code || !price) {
+      setError('Code and price are required')
+
+      return
+    }
+
+    if (items.some(i => i.code === code)) {
+      setError('Code must be unique')
+
+      return
+    }
+
+    const priceValue = parseFloat(price)
+
+    if (Number.isNaN(priceValue)) {
+      setError('Price must be a number')
+
+      return
+    }
+
+    try {
+      await apiClient.post('/price-lists/items', { code, price: priceValue })
+      setItems([...items, { code, price: priceValue }])
+      setCode('')
+      setPrice('')
+      setError(null)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to add item'
+
+      setError(message)
+    }
   }
 
-  const handleSave = () => {
-    if (window.confirm(`Bump version to ${version + 1}?`)) {
-      setVersion(v => v + 1)
-      alert('Price list saved')
+  const handleSave = async () => {
+    try {
+      setError(null)
+      setSuccess(null)
+
+      const data = await apiClient.post<{ items: PriceItem[]; version: number }>(
+        '/price-lists',
+        { items, version }
+      )
+
+      setItems(data.items)
+      setVersion(data.version)
+      setSuccess('Price list saved')
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to save price list'
+
+      setError(message)
     }
   }
 
   return (
     <div>
       <h1>Price List v{version}</h1>
+      {error && <div className='text-red-500'>{error}</div>}
+      {success && <div className='text-green-500'>{success}</div>}
       <form onSubmit={handleAdd}>
         <input value={code} onChange={e => setCode(e.target.value)} placeholder='Code' />
         <input
@@ -55,7 +117,7 @@ return
           </li>
         ))}
       </ul>
-      <button onClick={handleSave}>Save</button>
+      <button onClick={handleSave} disabled={!!error}>Save</button>
     </div>
   )
 }
