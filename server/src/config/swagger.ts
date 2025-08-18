@@ -352,7 +352,7 @@ const options = {
         },
         Variation: {
           type: 'object',
-          required: ['tenantId', 'proposalId'],
+          required: ['tenantId', 'proposalId', 'name', 'status'],
           properties: {
             tenantId: {
               type: 'string',
@@ -363,6 +363,36 @@ const options = {
               type: 'string',
               description: 'Proposal identifier',
               example: '507f1f77bcf86cd799439012',
+            },
+            name: {
+              type: 'string',
+              description: 'Variation name',
+              example: 'Lighting Upgrade',
+            },
+            status: {
+              type: 'string',
+              description: 'Variation status',
+              example: 'Draft',
+            },
+            items: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  description: {
+                    type: 'string',
+                    example: 'Premium fixture',
+                  },
+                  qty: {
+                    type: 'number',
+                    example: 2,
+                  },
+                  price: {
+                    type: 'number',
+                    example: 100,
+                  },
+                },
+              },
             },
           },
         },
