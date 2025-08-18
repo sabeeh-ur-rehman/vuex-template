@@ -6,11 +6,22 @@ export interface Proposal {
   customerId: Types.ObjectId;
   priceListId?: Types.ObjectId;
   notes?: string;
-  items?: {
-    description: string;
-    quantity?: number;
-    unitPrice: number;
+  sections?: {
+    id: number;
+    title: string;
+    complete: boolean;
+    items: {
+      id: number;
+      name: string;
+      qty: number;
+      price: number;
+      optional?: boolean;
+      selected?: boolean;
+    }[];
   }[];
+  showPrices?: boolean;
+  adjustment?: number;
+  subtotal?: number;
   total?: number;
 }
 
@@ -20,13 +31,26 @@ const ProposalSchema = new Schema<Proposal>({
   customerId: { type: Schema.Types.ObjectId, required: true },
   priceListId: { type: Schema.Types.ObjectId },
   notes: { type: String },
-  items: [
+  sections: [
     {
-      description: { type: String, required: true },
-      quantity: { type: Number },
-      unitPrice: { type: Number, required: true },
+      id: { type: Number, required: true },
+      title: { type: String, required: true },
+      complete: { type: Boolean, required: true },
+      items: [
+        {
+          id: { type: Number, required: true },
+          name: { type: String, required: true },
+          qty: { type: Number, required: true },
+          price: { type: Number, required: true },
+          optional: { type: Boolean },
+          selected: { type: Boolean },
+        },
+      ],
     },
   ],
+  showPrices: { type: Boolean },
+  adjustment: { type: Number },
+  subtotal: { type: Number },
   total: { type: Number },
 });
 

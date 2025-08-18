@@ -6,9 +6,48 @@ import AuditLog from '../models/AuditLog';
 
 const router = Router();
 
+const itemSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  qty: z.number(),
+  price: z.number(),
+  optional: z.boolean().optional(),
+  selected: z.boolean().optional(),
+});
+
+const sectionSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  complete: z.boolean(),
+  items: z.array(itemSchema),
+});
+
 const schema = z.object({
   projectId: z.string(),
+  customerId: z.string().optional(),
+  priceListId: z.string().optional(),
+  notes: z.string().optional(),
+  sections: z.array(sectionSchema).optional(),
+  showPrices: z.boolean().optional(),
+  adjustment: z.number().optional(),
 });
+
+function calculateTotals(
+  sections: z.infer<typeof sectionSchema>[] | undefined,
+  adjustment: number | undefined
+) {
+  const subtotal = (sections ?? []).reduce((sum, section) => {
+    return (
+      sum +
+      section.items.reduce((s, item) => {
+        if (item.optional && !item.selected) return s;
+        return s + item.qty * item.price;
+      }, 0)
+    );
+  }, 0);
+  const total = subtotal + (adjustment ?? 0);
+  return { subtotal, total };
+}
 
 /**
  * @openapi
@@ -138,7 +177,13 @@ router.post('/', guard('proposals', 'create'), async (req: AuthenticatedRequest,
   if (!parsed.success) {
     return res.status(400).json(parsed.error.flatten());
   }
-  const created = await Proposal.create({ ...parsed.data, tenantId: req.tenantId });
+  const { subtotal, total } = calculateTotals(parsed.data.sections, parsed.data.adjustment);
+  const created = await Proposal.create({
+    ...parsed.data,
+    subtotal,
+    total,
+    tenantId: req.tenantId,
+  });
   await AuditLog.create({
     tenantId: req.tenantId!,
     action: 'create',
@@ -154,14 +199,18 @@ router.put('/:id', guard('proposals', 'update'), async (req: AuthenticatedReques
   if (!parsed.success) {
     return res.status(400).json(parsed.error.flatten());
   }
-  const updated = await Proposal.findOneAndUpdate(
-    { _id: req.params.id, tenantId: req.tenantId },
-    parsed.data,
-    { new: true }
-  );
-  if (!updated) {
+  const existing = await Proposal.findOne({ _id: req.params.id, tenantId: req.tenantId });
+  if (!existing) {
     return res.status(404).json({ message: 'Not found' });
   }
+  const sections = parsed.data.sections ?? existing.sections;
+  const adjustment = parsed.data.adjustment ?? existing.adjustment;
+  const { subtotal, total } = calculateTotals(sections, adjustment);
+  const updated = await Proposal.findOneAndUpdate(
+    { _id: req.params.id, tenantId: req.tenantId },
+    { ...parsed.data, subtotal, total },
+    { new: true }
+  );
   await AuditLog.create({
     tenantId: req.tenantId!,
     action: 'update',
