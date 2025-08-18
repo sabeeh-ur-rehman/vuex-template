@@ -8,23 +8,29 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: { label: 'Email', type: 'text' },
-        password: { label: 'Password', type: 'password' },
-        tenantId: { label: 'Tenant ID', type: 'text' }
+        tenantId: { label: 'Tenant ID', type: 'text' },
+        userId: { label: 'User ID', type: 'text' }
       },
       async authorize(credentials) {
         try {
-          const data = await apiClient.post('/auth/login', {
-            email: credentials?.email,
-            password: credentials?.password,
-            tenantId: credentials?.tenantId
-          })
+          const { token } = (await apiClient.post('/auth/login', {
+            tenantId: credentials?.tenantId,
+            userId: credentials?.userId
+          })) as any
 
-          const { id, name, email, token } = data as any
-
-          if (!id || !email || !token) {
+          if (!token) {
             return null
           }
+
+          let user: any
+
+          try {
+            user = await apiClient.get(`/users/${credentials?.userId}`)
+          } catch {
+            user = { id: credentials?.userId }
+          }
+
+          const { id, name, email } = user as any
 
           return { id, name, email, token }
         } catch (error) {
