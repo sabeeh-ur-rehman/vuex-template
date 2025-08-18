@@ -11,6 +11,18 @@ const AuditLog_1 = __importDefault(require("../models/AuditLog"));
 const router = (0, express_1.Router)();
 const schema = zod_1.z.object({
     email: zod_1.z.string().email(),
+    firstName: zod_1.z.string().optional(),
+    lastName: zod_1.z.string().optional(),
+    phone: zod_1.z.string().optional(),
+    address: zod_1.z
+        .object({
+        street: zod_1.z.string().optional(),
+        city: zod_1.z.string().optional(),
+        state: zod_1.z.string().optional(),
+        postalCode: zod_1.z.string().optional(),
+        country: zod_1.z.string().optional(),
+    })
+        .optional(),
 });
 /**
  * @openapi

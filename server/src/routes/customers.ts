@@ -8,6 +8,18 @@ const router = Router();
 
 const schema = z.object({
   email: z.string().email(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  phone: z.string().optional(),
+  address: z
+    .object({
+      street: z.string().optional(),
+      city: z.string().optional(),
+      state: z.string().optional(),
+      postalCode: z.string().optional(),
+      country: z.string().optional(),
+    })
+    .optional(),
 });
 
 /**
