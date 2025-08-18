@@ -16,7 +16,7 @@
     "build:icons": "tsx src/assets/iconify-icons/bundle-icons-css.ts",
     "postinstall": "npm run build:icons",
     "seed": "tsx server/src/db/seed.ts",
-     "seed-all": "tsx scripts/seed-all.ts"
+    "seed-all": "node --import tsx scripts/seed-all.ts"
   },
   "dependencies": {
     "@emotion/cache": "11.14.0",

@@ -1,0 +1,37 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_1 = __importDefault(require("../src/routes/auth"));
+const tenants_1 = __importDefault(require("../src/routes/tenants"));
+const users_1 = __importDefault(require("../src/routes/users"));
+const memberships_1 = __importDefault(require("../src/routes/memberships"));
+const customers_1 = __importDefault(require("../src/routes/customers"));
+const projects_1 = __importDefault(require("../src/routes/projects"));
+const steps_1 = __importDefault(require("../src/routes/steps"));
+const priceLists_1 = __importDefault(require("../src/routes/priceLists"));
+const proposals_1 = __importDefault(require("../src/routes/proposals"));
+const variations_1 = __importDefault(require("../src/routes/variations"));
+const emails_1 = __importDefault(require("../src/routes/emails"));
+const templates_1 = __importDefault(require("../src/routes/templates"));
+const admin_1 = __importDefault(require("../src/routes/admin"));
+const router = (0, express_1.Router)();
+router.use('/auth', auth_1.default);
+router.use('/tenants', tenants_1.default);
+router.use('/users', users_1.default);
+router.use('/memberships', memberships_1.default);
+router.use('/customers', customers_1.default);
+router.use('/projects', projects_1.default);
+router.use('/steps', steps_1.default);
+router.use('/price-lists', priceLists_1.default);
+router.use('/proposals', proposals_1.default);
+router.use('/variations', variations_1.default);
+router.use('/emails', emails_1.default);
+router.use('/templates', templates_1.default);
+router.use('/admin', admin_1.default);
+router.get('/health', (_req, res) => {
+    res.send('ok');
+});
+exports.default = router;
