@@ -46,6 +46,17 @@ The script inserts a demo tenant and an administrator user:
 
 Use these values when developing locally or seeding additional data.
 
+To populate all supporting collections for a tenant in one step, run:
+
+```bash
+pnpm tsx scripts/seed-all.ts <tenantId>
+```
+
+Replace `<tenantId>` with the id of the tenant (for example, `000000000000000000000001`).
+The script sequentially runs `seed.ts`, `seed-councils.ts`, `seed-reps.ts`,
+`seed-standard-steps.ts`, `seed-summer-times.ts`, and `seed-price-list.ts` so the
+tenant has all required data.
+
 ### Sample API flow
 
 1. **Seed** the database
