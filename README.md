@@ -24,7 +24,10 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 - `/templates` – build and manage templates
 - `/pricelist` – view pricing details
 - `/admin` – administration dashboard
+- `/proposals` – list proposals
 - `/proposals/[id]` – view a specific proposal (replace `[id]` with the proposal's id)
+- `/variations` – select a project to manage variations
+- `/variations/[projectId]` – manage variations for a specific project
 
 **Note:** Bracketed segments like `[id]` denote parameterized paths.
 
