@@ -84,6 +84,10 @@ tenant has all required data.
 
 The API client lives in `src/utils/apiClient.ts`, and the NextAuth configuration resides in `src/app/api/auth/[...nextauth]/route.ts`.
 
+### Self-registration
+
+The Express API now includes `POST /api/auth/self-register` which allows users to sign up themselves. The route is disabled by default; set `ALLOW_SELF_REGISTER=true` in your environment to enable it.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

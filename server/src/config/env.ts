@@ -15,6 +15,7 @@ export interface EnvConfig {
   storage: Record<string, string | undefined>;
   baseUrl: string | undefined;
   tenantDefaultTimezone: string | undefined;
+  allowSelfRegister: string | undefined;
 }
 
 const config: EnvConfig = {
@@ -24,7 +25,8 @@ const config: EnvConfig = {
   emailProvider: process.env.EMAIL_PROVIDER,
   storage,
   baseUrl: process.env.BASE_URL,
-  tenantDefaultTimezone: process.env.TENANT_DEFAULT_TIMEZONE
+  tenantDefaultTimezone: process.env.TENANT_DEFAULT_TIMEZONE,
+  allowSelfRegister: process.env.ALLOW_SELF_REGISTER,
 };
 
 export default config;
