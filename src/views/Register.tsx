@@ -10,6 +10,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import CustomTextField from '@core/components/mui/TextField';
 import Link from '@components/Link';
+import { apiClient } from '@/utils/apiClient';
 
 type FormValues = z.infer<typeof SelfRegisterSchema>;
 
@@ -18,16 +19,11 @@ const RegisterView = () => {
   const { register, handleSubmit, formState: { errors }, setError } = useForm<FormValues>({ resolver: zodResolver(SelfRegisterSchema) });
 
   const onSubmit = async (data: FormValues) => {
-    const res = await fetch('/api/auth/self-register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    if (res.ok) {
+    try {
+      await apiClient.post('/auth/self-register', data);
       router.push('/login?registered=1');
-    } else {
-      const json = await res.json().catch(() => ({}));
-      setError('root', { message: json.message || 'Registration failed' });
+    } catch (err: any) {
+      setError('root', { message: err.message || 'Registration failed' });
     }
   };
 
