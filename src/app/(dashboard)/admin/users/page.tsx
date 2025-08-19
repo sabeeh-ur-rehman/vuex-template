@@ -1,60 +1,63 @@
 'use client'
 
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+import MenuItem from '@mui/material/MenuItem'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
 
-interface Item {
-  id: number
+interface InviteForm {
   name: string
+  email: string
+  role: 'admin' | 'rep' | 'user'
 }
 
 export default function UsersPage() {
-  const [items, setItems] = useState<Item[]>([])
-  const [name, setName] = useState('')
-  const [editingId, setEditingId] = useState<number | null>(null)
+  const [open, setOpen] = useState(false)
+  const [message, setMessage] = useState('')
+  const { register, handleSubmit, reset } = useForm<InviteForm>({ defaultValues: { role: 'rep' } })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!name.trim()) return
-
-    if (editingId === null) {
-      setItems([...items, { id: Date.now(), name }])
+  const onSubmit = async (data: InviteForm) => {
+    const res = await fetch('/api/admin/users/invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    if (res.ok) {
+      setMessage('Invitation sent')
+      reset({ role: 'rep' })
+      setOpen(false)
     } else {
-      setItems(items.map(item => (item.id === editingId ? { ...item, name } : item)))
-      setEditingId(null)
+      setMessage('Failed to invite user')
     }
-
-    setName('')
-  }
-
-  const handleEdit = (id: number) => {
-    const item = items.find(i => i.id === id)
-
-    if (!item) return
-    setName(item.name)
-    setEditingId(id)
-  }
-
-  const handleDelete = (id: number) => {
-    setItems(items.filter(item => item.id !== id))
   }
 
   return (
-    <div>
-      <h1>Users</h1>
-      <form onSubmit={handleSubmit}>
-        <input value={name} onChange={e => setName(e.target.value)} placeholder='Name' />
-        <button type='submit'>{editingId === null ? 'Add' : 'Update'}</button>
-      </form>
-      <ul>
-        {items.map(item => (
-          <li key={item.id}>
-            {item.name}
-            <button onClick={() => handleEdit(item.id)}>Edit</button>
-            <button onClick={() => handleDelete(item.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+    <div className='p-4'>
+      <Button variant='contained' onClick={() => setOpen(true)}>Invite User</Button>
+      {message && <p>{message}</p>}
+      <Dialog open={open} onClose={() => setOpen(false)}>
+        <DialogTitle>Invite User</DialogTitle>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <DialogContent className='flex flex-col gap-4'>
+            <TextField label='Name' {...register('name', { required: true })} />
+            <TextField label='Email' type='email' {...register('email', { required: true })} />
+            <TextField select label='Role' {...register('role', { required: true })}>
+              <MenuItem value='admin'>Admin</MenuItem>
+              <MenuItem value='rep'>Rep</MenuItem>
+              <MenuItem value='user'>User</MenuItem>
+            </TextField>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpen(false)}>Cancel</Button>
+            <Button type='submit' variant='contained'>Send Invite</Button>
+          </DialogActions>
+        </form>
+      </Dialog>
     </div>
   )
 }
-
