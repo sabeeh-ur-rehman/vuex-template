@@ -16,6 +16,7 @@
     "build:icons": "tsx src/assets/iconify-icons/bundle-icons-css.ts",
     "postinstall": "npm run build:icons",
     "seed": "tsx scripts/seed.ts",
+    "seed:admin": "ts-node --transpile-only scripts/seed-admin.ts",
     "seed-all": "node --import tsx scripts/seed-all.ts",
     "test": "vitest"
   },
@@ -41,6 +42,7 @@
     "nanoid": "^5.1.5",
     "next": "15.1.2",
     "next-auth": "^4.24.11",
+    "nodemailer": "^6.10.1",
     "react": "18.3.1",
     "react-colorful": "5.6.1",
     "react-dom": "18.3.1",

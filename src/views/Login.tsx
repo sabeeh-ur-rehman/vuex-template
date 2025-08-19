@@ -32,6 +32,7 @@ import { useImageVariant } from '@core/hooks/useImageVariant'
 import { useSettings } from '@core/hooks/useSettings'
 import { useAuth } from '@/@core/contexts/authContext'
 import { LoginSchema } from '@/server/validation/auth'
+import { useSearchParams } from 'next/navigation'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -59,7 +60,7 @@ const MaskImg = styled('img')({
 
 type FormValues = z.infer<typeof LoginSchema>
 
-const LoginV2 = ({ mode }: { mode: SystemMode }) => {
+const LoginV2 = ({ mode, allowSelfRegister }: { mode: SystemMode; allowSelfRegister: boolean }) => {
   // Vars
   const darkImg = '/images/pages/auth-mask-dark.png'
   const lightImg = '/images/pages/auth-mask-light.png'
@@ -74,6 +75,8 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
   const authBackground = useImageVariant(mode, lightImg, darkImg)
   const { login } = useAuth()
+  const params = useSearchParams()
+  const registered = params.get('registered')
   const { register, handleSubmit, formState: { errors }, setError } = useForm<FormValues>({ resolver: zodResolver(LoginSchema) })
 
   const characterIllustration = useImageVariant(
@@ -153,16 +156,22 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
               error={!!errors.password}
               helperText={errors.password?.message}
             />
+            {registered && <Typography color='success.main'>Account created, please sign in</Typography>}
             {errors.root && <Typography color='error'>{errors.root.message}</Typography>}
             <Button fullWidth variant='contained' type='submit'>
               Login
             </Button>
-            <div className='flex justify-center items-center flex-wrap gap-2'>
-              <Typography>New on our platform?</Typography>
-              <Typography component={Link} color='primary.main'>
-                Create an account
-              </Typography>
-            </div>
+            {allowSelfRegister && (
+              <div className='flex justify-center items-center flex-wrap gap-2'>
+                <Typography>New on our platform?</Typography>
+                <Typography component={Link} color='primary.main' href='/register'>
+                  Create an account
+                </Typography>
+              </div>
+            )}
+            <Typography component={Link} href='/forgot-password' color='primary.main' className='text-center'>
+              Forgot password?
+            </Typography>
             <Divider className='gap-2 text-textPrimary'>or</Divider>
             <div className='flex justify-center items-center gap-1.5'>
               <IconButton className='text-facebook' size='small'>
