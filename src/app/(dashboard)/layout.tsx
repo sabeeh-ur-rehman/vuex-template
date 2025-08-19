@@ -17,12 +17,25 @@ import Navbar from '@components/layout/vertical/Navbar'
 import VerticalFooter from '@components/layout/vertical/Footer'
 import HorizontalFooter from '@components/layout/horizontal/Footer'
 import ScrollToTop from '@core/components/scroll-to-top'
+import { AuthProvider } from '@core/contexts/authContext'
 
 // Util Imports
 import { getMode, getSystemMode } from '@core/utils/serverHelpers'
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { verifyAccess } from '@/server/security/jwt'
 
 const Layout = async (props: ChildrenType) => {
   const { children } = props
+
+  const token = cookies().get('access_token')?.value
+  if (!token) redirect('/login')
+  let user
+  try {
+    user = verifyAccess(token)
+  } catch (e) {
+    redirect('/login')
+  }
 
   // Vars
   const direction = 'ltr'
@@ -30,26 +43,28 @@ const Layout = async (props: ChildrenType) => {
   const systemMode = await getSystemMode()
 
   return (
-    <Providers direction={direction}>
-      <LayoutWrapper
-        systemMode={systemMode}
-        verticalLayout={
-          <VerticalLayout navigation={<Navigation mode={mode} />} navbar={<Navbar />} footer={<VerticalFooter />}>
-            {children}
-          </VerticalLayout>
-        }
-        horizontalLayout={
-          <HorizontalLayout header={<Header />} footer={<HorizontalFooter />}>
-            {children}
-          </HorizontalLayout>
-        }
-      />
-      <ScrollToTop className='mui-fixed'>
-        <Button variant='contained' className='is-10 bs-10 rounded-full p-0 min-is-0 flex items-center justify-center'>
-          <i className='tabler-arrow-up' />
-        </Button>
-      </ScrollToTop>
-    </Providers>
+    <AuthProvider initialUser={user}>
+      <Providers direction={direction}>
+        <LayoutWrapper
+          systemMode={systemMode}
+          verticalLayout={
+            <VerticalLayout navigation={<Navigation mode={mode} />} navbar={<Navbar />} footer={<VerticalFooter />}>
+              {children}
+            </VerticalLayout>
+          }
+          horizontalLayout={
+            <HorizontalLayout header={<Header />} footer={<HorizontalFooter />}>
+              {children}
+            </HorizontalLayout>
+          }
+        />
+        <ScrollToTop className='mui-fixed'>
+          <Button variant='contained' className='is-10 bs-10 rounded-full p-0 min-is-0 flex items-center justify-center'>
+            <i className='tabler-arrow-up' />
+          </Button>
+        </ScrollToTop>
+      </Providers>
+    </AuthProvider>
   )
 }
 
