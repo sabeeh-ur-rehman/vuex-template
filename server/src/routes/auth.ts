@@ -1,19 +1,19 @@
 import { Router } from 'express';
-import { z } from 'zod';
 import { signTenantToken } from '../auth/jwt';
 import env from '../config/env';
 import { connectMongo } from '../db/mongo';
 import Tenant from '../models/Tenant';
 import User from '../models/User';
-import { hashPassword } from '../../../src/server/security/crypto';
-import { SelfRegisterSchema } from '../../../src/server/validation/auth';
+import {
+  hashPassword,
+  verifyPassword,
+} from '../../../src/server/security/crypto';
+import {
+  SelfRegisterSchema,
+  LoginSchema,
+} from '../../../src/server/validation/auth';
 
 const router = Router();
-
-const loginSchema = z.object({
-  tenantId: z.string(),
-  userId: z.string(),
-});
 
 /**
  * @openapi
@@ -28,8 +28,9 @@ const loginSchema = z.object({
  *           schema:
  *             $ref: '#/components/schemas/AuthLogin'
  *           example:
- *             tenantId: '507f1f77bcf86cd799439011'
- *             userId: '507f1f77bcf86cd799439012'
+ *             tenantCode: 'acme'
+ *             email: 'user@example.com'
+ *             password: 'secret123'
  *     responses:
  *       '200':
  *         description: JWT token returned.
@@ -40,13 +41,44 @@ const loginSchema = z.object({
  *             example:
  *               token: 'jwt.token.example'
  */
-router.post('/login', (req, res) => {
-  const parsed = loginSchema.safeParse(req.body);
+router.post('/login', async (req, res) => {
+  const parsed = LoginSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json(parsed.error.flatten());
   }
-  const token = signTenantToken(parsed.data.tenantId, parsed.data.userId);
-  res.json({ token });
+  try {
+    await connectMongo();
+    const tenant = await Tenant.findOne({ code: parsed.data.tenantCode });
+    if (!tenant) return res.status(401).json({ error: 'INVALID' });
+
+    const user = await User.findOne({
+      tenantId: tenant._id,
+      email: parsed.data.email.toLowerCase(),
+    });
+    if (!user) return res.status(401).json({ error: 'INVALID' });
+
+    const ok = await verifyPassword(
+      parsed.data.password,
+      user.passwordHash,
+    );
+    if (!ok) return res.status(401).json({ error: 'INVALID' });
+
+    const token = signTenantToken(
+      tenant._id.toString(),
+      user._id.toString(),
+    );
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 router.post('/self-register', async (req, res) => {
