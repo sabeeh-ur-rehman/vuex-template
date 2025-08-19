@@ -2,11 +2,11 @@
 import type { VerticalMenuDataType } from '@/types/menuTypes'
 
 const verticalMenuData = (): VerticalMenuDataType[] => [
-  {
-    label: 'Dashboard',
-    href: '/dashboard',
-    icon: 'tabler-layout-dashboard'
-  },
+  // {
+  //   label: 'Dashboard',
+  //   href: '/dashboard',
+  //   icon: 'tabler-layout-dashboard'
+  // },
   {
     label: 'Projects',
     href: '/projects',
@@ -33,12 +33,12 @@ const verticalMenuData = (): VerticalMenuDataType[] => [
     children: [
       {
         label: 'Templates',
-        href: '/admin/templates',
+        href: '/templates',
         icon: 'tabler-template'
       },
       {
         label: 'Emails',
-        href: '/admin/emails',
+        href: '/emails',
         icon: 'tabler-mail'
       }
     ]
