@@ -1,7 +1,9 @@
 'use client'
 
-// Next Auth Imports
-import { signIn } from 'next-auth/react'
+// React Hook Form Imports
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import type { z } from 'zod'
 
 // MUI Imports
 import useMediaQuery from '@mui/material/useMediaQuery'
@@ -28,6 +30,8 @@ import themeConfig from '@configs/themeConfig'
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
 import { useSettings } from '@core/hooks/useSettings'
+import { useAuth } from '@/@core/contexts/authContext'
+import { LoginSchema } from '@/server/validation/auth'
 
 // Styled Custom Components
 const LoginIllustration = styled('img')(({ theme }) => ({
@@ -53,6 +57,8 @@ const MaskImg = styled('img')({
   zIndex: -1
 })
 
+type FormValues = z.infer<typeof LoginSchema>
+
 const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   // Vars
   const darkImg = '/images/pages/auth-mask-dark.png'
@@ -67,6 +73,8 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const theme = useTheme()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
   const authBackground = useImageVariant(mode, lightImg, darkImg)
+  const { login } = useAuth()
+  const { register, handleSubmit, formState: { errors }, setError } = useForm<FormValues>({ resolver: zodResolver(LoginSchema) })
 
   const characterIllustration = useImageVariant(
     mode,
@@ -75,6 +83,14 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
     borderedLightIllustration,
     borderedDarkIllustration
   )
+
+  const onSubmit = async (data: FormValues) => {
+    try {
+      await login(data)
+    } catch (e) {
+      setError('root', { message: 'Invalid credentials' })
+    }
+  }
 
   return (
     <div className='flex bs-full justify-center'>
@@ -107,29 +123,37 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
           <form
             noValidate
             autoComplete='off'
-            onSubmit={async e => {
-              e.preventDefault()
-              const formData = new FormData(e.currentTarget)
-              const tenantId = formData.get('tenantId') as string
-              const userId = formData.get('userId') as string
-
-              await signIn('credentials', { tenantId, userId, callbackUrl: '/' })
-            }}
+            onSubmit={handleSubmit(onSubmit)}
             className='flex flex-col gap-5'
           >
             <CustomTextField
               autoFocus
               fullWidth
-              label='Tenant ID'
-              name='tenantId'
-              placeholder='Enter your tenant ID'
+              label='Tenant Code'
+              placeholder='Enter your tenant code'
+              {...register('tenantCode')}
+              error={!!errors.tenantCode}
+              helperText={errors.tenantCode?.message}
             />
             <CustomTextField
               fullWidth
-              label='User ID'
-              name='userId'
-              placeholder='Enter your user ID'
+              label='Email'
+              placeholder='Enter your email'
+              type='email'
+              {...register('email')}
+              error={!!errors.email}
+              helperText={errors.email?.message}
             />
+            <CustomTextField
+              fullWidth
+              label='Password'
+              placeholder='Enter your password'
+              type='password'
+              {...register('password')}
+              error={!!errors.password}
+              helperText={errors.password?.message}
+            />
+            {errors.root && <Typography color='error'>{errors.root.message}</Typography>}
             <Button fullWidth variant='contained' type='submit'>
               Login
             </Button>
