@@ -22,7 +22,14 @@ const request = async <T>(endpoint: string, options: RequestOptions = {}): Promi
   const { params, headers, ...init } = options
 
   const fetchHeaders: HeadersInit = {
-    ...headers,
+    ...headers
+  }
+
+  // Attach JWT token if available in localStorage
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('token')
+
+    if (token) fetchHeaders['Authorization'] = `Bearer ${token}`
   }
 
   if (init.body && !(init.body instanceof FormData) && !fetchHeaders['Content-Type']) {
@@ -32,7 +39,7 @@ const request = async <T>(endpoint: string, options: RequestOptions = {}): Promi
   const res = await fetch(`${API_BASE_URL}${endpoint}${buildQuery(params)}`, {
     ...init,
     headers: fetchHeaders,
-    credentials: 'include',
+    credentials: 'include'
   })
 
   if (!res.ok) {
@@ -40,6 +47,7 @@ const request = async <T>(endpoint: string, options: RequestOptions = {}): Promi
   }
 
   if (res.status === 204) return undefined as T
+
   return (await res.json()) as T
 }
 
@@ -47,21 +55,23 @@ export const apiClient = {
   get: <T>(url: string, options?: RequestOptions) => request<T>(url, { ...options, method: 'GET' }),
   post: <T>(url: string, body?: unknown, options?: RequestOptions) => {
     const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
+
     return request<T>(url, {
       ...options,
       method: 'POST',
-      body: isFormData ? (body as FormData) : JSON.stringify(body),
+      body: isFormData ? (body as FormData) : JSON.stringify(body)
     })
   },
   put: <T>(url: string, body?: unknown, options?: RequestOptions) => {
     const isFormData = typeof FormData !== 'undefined' && body instanceof FormData
+
     return request<T>(url, {
       ...options,
       method: 'PUT',
-      body: isFormData ? (body as FormData) : JSON.stringify(body),
+      body: isFormData ? (body as FormData) : JSON.stringify(body)
     })
   },
-  del: <T>(url: string, options?: RequestOptions) => request<T>(url, { ...options, method: 'DELETE' }),
+  del: <T>(url: string, options?: RequestOptions) => request<T>(url, { ...options, method: 'DELETE' })
 }
 
 export default apiClient
