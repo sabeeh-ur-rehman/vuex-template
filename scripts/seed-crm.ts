@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import StandardStep from '../src/server/db/models/StandardStep';
-import User from '../src/server/db/models/User';
+import StandardStep from '../server/src/models/StandardStep';
+import User from '../server/src/models/User';
 
 dotenv.config();
 

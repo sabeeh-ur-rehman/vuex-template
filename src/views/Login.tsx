@@ -31,7 +31,7 @@ import themeConfig from '@configs/themeConfig'
 import { useImageVariant } from '@core/hooks/useImageVariant'
 import { useSettings } from '@core/hooks/useSettings'
 import { useAuth } from '@/@core/contexts/authContext'
-import { LoginSchema } from '@/server/validation/auth'
+import { LoginSchema } from '@/validation/auth'
 import { useSearchParams } from 'next/navigation'
 
 // Styled Custom Components
