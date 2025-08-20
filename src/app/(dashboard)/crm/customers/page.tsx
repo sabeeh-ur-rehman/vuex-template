@@ -32,8 +32,10 @@ const CustomersPage = () => {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
+
         const data = await apiClient.get<{ items: Customer[] }>('/customers')
         setCustomers(data.items)
+
         setError(null)
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to load customers'
