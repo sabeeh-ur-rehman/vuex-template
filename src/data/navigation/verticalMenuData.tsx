@@ -28,6 +28,25 @@ const verticalMenuData = (): VerticalMenuDataType[] => [
     icon: 'tabler-currency-dollar'
   },
   {
+    label: 'CRM',
+    icon: 'tabler-users',
+    roles: ['admin', 'rep', 'user'],
+    children: [
+      {
+        label: 'Leads',
+        href: '/crm/leads',
+        icon: 'tabler-user-plus',
+        roles: ['admin', 'rep']
+      },
+      {
+        label: 'Customers',
+        href: '/crm/customers',
+        icon: 'tabler-user-check',
+        roles: ['admin', 'rep', 'user']
+      }
+    ]
+  },
+  {
     label: 'Admin',
     icon: 'tabler-settings',
     children: [

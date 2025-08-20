@@ -4,6 +4,9 @@ import type { ReactNode } from 'react'
 // MUI Imports
 import type { ChipProps } from '@mui/material/Chip'
 
+// Role Imports
+import type { Role } from '@/server/security/jwt'
+
 // Type Imports
 import type {
   SubMenuProps as VerticalSubMenuProps,
@@ -27,12 +30,14 @@ export type VerticalMenuItemDataType = Omit<
     icon?: string
     prefix?: ReactNode | ChipProps
     suffix?: ReactNode | ChipProps
+    roles?: Role[]
   }
 export type VerticalSubMenuDataType = Omit<VerticalSubMenuProps, 'children' | 'icon' | 'prefix' | 'suffix'> & {
   children: VerticalMenuDataType[]
   icon?: string
   prefix?: ReactNode | ChipProps
   suffix?: ReactNode | ChipProps
+  roles?: Role[]
 }
 export type VerticalSectionDataType = Omit<VerticalMenuSectionProps, 'children'> & {
   isSection: boolean
@@ -51,11 +56,13 @@ export type HorizontalMenuItemDataType = Omit<
     icon?: string
     prefix?: ReactNode | ChipProps
     suffix?: ReactNode | ChipProps
+    roles?: Role[]
   }
 export type HorizontalSubMenuDataType = Omit<HorizontalSubMenuProps, 'children' | 'icon' | 'prefix' | 'suffix'> & {
   children: HorizontalMenuDataType[]
   icon?: string
   prefix?: ReactNode | ChipProps
   suffix?: ReactNode | ChipProps
+  roles?: Role[]
 }
 export type HorizontalMenuDataType = HorizontalMenuItemDataType | HorizontalSubMenuDataType
