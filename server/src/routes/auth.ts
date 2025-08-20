@@ -4,14 +4,8 @@ import env from '../config/env';
 import { connectMongo } from '../db/mongo';
 import Tenant from '../models/Tenant';
 import User from '../models/User';
-import {
-  hashPassword,
-  verifyPassword,
-} from '../../../src/server/security/crypto';
-import {
-  SelfRegisterSchema,
-  LoginSchema,
-} from '../../../src/server/validation/auth';
+import { hashPassword, verifyPassword } from '../security/crypto';
+import { SelfRegisterSchema, LoginSchema } from '../validation/auth';
 
 const router = Router();
 

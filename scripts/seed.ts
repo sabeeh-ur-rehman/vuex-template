@@ -1,11 +1,11 @@
-import { connectDb } from '../src/server/db/connection';
-import Tenant from '../src/server/db/models/Tenant';
-import User from '../src/server/db/models/User';
-import { hashPassword } from '../src/server/security/crypto';
-import { env } from '../src/server/config/env';
+import { connectMongo } from '../server/src/db/mongo';
+import Tenant from '../server/src/models/Tenant';
+import User from '../server/src/models/User';
+import { hashPassword } from '../server/src/security/crypto';
+import env from '../server/src/config/env';
 
 async function run() {
-  await connectDb();
+  await connectMongo();
   const tenant = await Tenant.findOneAndUpdate(
     { code: 'AWARD' },
     { name: 'Award Pools', code: 'AWARD' },

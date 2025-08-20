@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import CustomTextField from '@core/components/mui/TextField';
 import Link from '@components/Link';
 import { useState } from 'react';
+import { apiClient } from '@/utils/apiClient';
 
 interface FormData {
   tenantCode: string;
@@ -17,11 +18,7 @@ const ForgotPasswordView = () => {
   const [sent, setSent] = useState(false);
 
   const onSubmit = async (data: FormData) => {
-    await fetch('/api/auth/password/request', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
+    await apiClient.post('/auth/password/request', data);
     setSent(true);
   };
 

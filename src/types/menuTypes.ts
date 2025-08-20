@@ -5,7 +5,7 @@ import type { ReactNode } from 'react'
 import type { ChipProps } from '@mui/material/Chip'
 
 // Role Imports
-import type { Role } from '@/server/security/jwt'
+import type { Role } from '@/types/auth'
 
 // Type Imports
 import type {

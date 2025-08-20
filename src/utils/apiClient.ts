@@ -1,5 +1,3 @@
-import { getSession } from 'next-auth/react'
-
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
 
 type RequestOptions = RequestInit & {
@@ -23,9 +21,6 @@ const buildQuery = (params?: Record<string, unknown>) => {
 const request = async <T>(endpoint: string, options: RequestOptions = {}): Promise<T> => {
   const { params, headers, ...init } = options
 
-  const session = typeof window !== 'undefined' ? await getSession() : null
-  const token = (session as any)?.accessToken as string | undefined
-
   const fetchHeaders: HeadersInit = {
     ...headers,
   }
@@ -34,17 +29,17 @@ const request = async <T>(endpoint: string, options: RequestOptions = {}): Promi
     fetchHeaders['Content-Type'] = 'application/json'
   }
 
-  if (token) fetchHeaders['Authorization'] = `Bearer ${token}`
-
   const res = await fetch(`${API_BASE_URL}${endpoint}${buildQuery(params)}`, {
     ...init,
     headers: fetchHeaders,
+    credentials: 'include',
   })
 
   if (!res.ok) {
     throw new Error(await res.text())
   }
 
+  if (res.status === 204) return undefined as T
   return (await res.json()) as T
 }
 

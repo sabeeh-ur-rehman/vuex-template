@@ -9,6 +9,7 @@ import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
+import { apiClient } from '@/utils/apiClient'
 
 interface InviteForm {
   name: string
@@ -22,16 +23,12 @@ export default function UsersPage() {
   const { register, handleSubmit, reset } = useForm<InviteForm>({ defaultValues: { role: 'rep' } })
 
   const onSubmit = async (data: InviteForm) => {
-    const res = await fetch('/api/admin/users/invite', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    })
-    if (res.ok) {
+    try {
+      await apiClient.post('/admin/users/invite', data)
       setMessage('Invitation sent')
       reset({ role: 'rep' })
       setOpen(false)
-    } else {
+    } catch {
       setMessage('Failed to invite user')
     }
   }
