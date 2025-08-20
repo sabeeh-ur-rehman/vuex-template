@@ -2,56 +2,37 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import type { JwtPayload } from '@/server/security/jwt';
+import { apiClient } from '@/utils/apiClient';
 
 type AuthContextType = {
-  user: JwtPayload | null;
+  user: any;
   login: (data: { email: string; password: string; tenantCode: string }) => Promise<void>;
-  logout: () => Promise<void>;
-  getProfile: () => Promise<void>;
+  logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   login: async () => {},
-  logout: async () => {},
-  getProfile: async () => {}
+  logout: () => {}
 });
 
-export const AuthProvider = ({ children, initialUser }: { children: ReactNode; initialUser?: JwtPayload | null }) => {
-  const [user, setUser] = useState<JwtPayload | null>(initialUser ?? null);
+export const AuthProvider = ({ children, initialUser }: { children: ReactNode; initialUser?: any }) => {
+  const [user, setUser] = useState<any>(initialUser ?? null);
   const router = useRouter();
 
   const login = async (data: { email: string; password: string; tenantCode: string }) => {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) {
-      throw new Error('Invalid credentials');
-    }
-    const profile = await res.json();
-    setUser(profile);
+    const res = await apiClient.post<{ token: string; user: any }>("/auth/login", data);
+    setUser(res.user);
     router.push('/dashboard');
   };
 
-  const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+  const logout = () => {
     setUser(null);
     router.push('/login');
   };
 
-  const getProfile = async () => {
-    const res = await fetch('/api/me');
-    if (res.ok) {
-      const profile = await res.json();
-      setUser(profile);
-    }
-  };
-
   return (
-    <AuthContext.Provider value={{ user, login, logout, getProfile }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

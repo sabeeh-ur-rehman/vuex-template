@@ -30,8 +30,8 @@ const LeadsPage = () => {
   useEffect(() => {
     const fetchLeads = async () => {
       try {
-        const data = await apiClient.get<Lead[]>('/crm/projects', { params: { status: 'lead' } })
-        setLeads(data)
+        const data = await apiClient.get<{ items: Lead[] }>('/projects', { params: { status: 'lead' } })
+        setLeads(data.items)
         setError(null)
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to load leads'
@@ -93,4 +93,3 @@ const LeadsPage = () => {
 }
 
 export default LeadsPage
-

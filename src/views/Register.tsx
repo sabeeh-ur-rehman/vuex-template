@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
-import { SelfRegisterSchema } from '@/server/validation/auth';
+import { SelfRegisterSchema } from '@/validation/auth';
 import { useRouter } from 'next/navigation';
 
 import Button from '@mui/material/Button';

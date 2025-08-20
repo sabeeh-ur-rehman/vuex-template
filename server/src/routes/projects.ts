@@ -8,7 +8,7 @@ const router = Router();
 
 const dateSchema = z.preprocess(
   (arg) => (arg ? new Date(arg as string) : undefined),
-  z.date()
+  z.date(),
 );
 
 const schema = z.object({
@@ -35,6 +35,27 @@ const schema = z.object({
  *     summary: List projects
  *     tags:
  *       - Projects
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: repId
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: number
  *     responses:
  *       '200':
  *         description: A paginated list of projects
@@ -129,15 +150,25 @@ const schema = z.object({
  *       '404':
  *         description: Not found
  */
-
 router.get('/', guard('projects', 'read'), async (req: AuthenticatedRequest, res) => {
   const page = parseInt((req.query.page as string) ?? '1', 10);
   const limit = parseInt((req.query.limit as string) ?? '20', 10);
   const skip = (page - 1) * limit;
+  const status = req.query.status as string | undefined;
+  const q = (req.query.q as string) || '';
+  const repId = req.query.repId as string | undefined;
+
+  const filter: any = { tenantId: req.tenantId };
+  if (status) filter.status = status;
+  if (repId) filter.repId = repId;
+  if (q) {
+    const regex = new RegExp(q, 'i');
+    filter.$or = [{ projectName: regex }, { jobNo: regex }];
+  }
 
   const [items, total] = await Promise.all([
-    Project.find({ tenantId: req.tenantId }).skip(skip).limit(limit).lean(),
-    Project.countDocuments({ tenantId: req.tenantId }),
+    Project.find(filter).skip(skip).limit(limit).lean(),
+    Project.countDocuments(filter),
   ]);
 
   res.json({ items, total, page });

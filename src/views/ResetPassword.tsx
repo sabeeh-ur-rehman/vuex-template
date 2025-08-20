@@ -6,6 +6,7 @@ import Typography from '@mui/material/Typography';
 import CustomTextField from '@core/components/mui/TextField';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import { apiClient } from '@/utils/apiClient';
 
 interface FormData {
   newPassword: string;
@@ -16,7 +17,7 @@ const ResetPasswordView = () => {
   const router = useRouter();
   const params = useSearchParams();
   const token = params.get('token');
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<FormData>();
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
   const [error, setError] = useState('');
 
   const onSubmit = async (data: FormData) => {
@@ -24,14 +25,10 @@ const ResetPasswordView = () => {
       setError('Passwords do not match');
       return;
     }
-    const res = await fetch('/api/auth/password/confirm', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token, newPassword: data.newPassword })
-    });
-    if (res.ok) {
+    try {
+      await apiClient.post('/auth/password/confirm', { token, newPassword: data.newPassword });
       router.push('/login');
-    } else {
+    } catch {
       setError('Invalid or expired token');
     }
   };
