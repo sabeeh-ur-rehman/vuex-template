@@ -28,16 +28,18 @@ export const AuthProvider = ({ children, initialUser }: { children: ReactNode; i
     // Store token for subsequent authenticated requests
     if (typeof window !== 'undefined') {
       localStorage.setItem('token', res.token)
+      document.cookie = `access_token=${res.token}; path=/`
     }
 
     setUser(res.user)
-    router.push('/dashboard')
+    router.push('/home')
   }
 
   const logout = () => {
     // Remove stored token on logout
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token')
+      document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
     }
 
     setUser(null)

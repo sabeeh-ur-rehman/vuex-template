@@ -2,11 +2,11 @@
 import type { HorizontalMenuDataType } from '@/types/menuTypes'
 
 const horizontalMenuData = (): HorizontalMenuDataType[] => [
-  // {
-  //   label: 'Dashboard',
-  //   href: '/dashboard',
-  //   icon: 'tabler-layout-dashboard'
-  // },
+  {
+    label: 'Home',
+    href: '/home',
+    icon: 'tabler-smart-home'
+  },
   {
     label: 'Projects',
     href: '/projects',
