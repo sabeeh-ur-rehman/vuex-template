@@ -78,7 +78,7 @@ const HorizontalMenu = () => {
           menuSectionStyles: verticalMenuSectionStyles(verticalNavOptions, theme)
         }}
       >
-        <MenuItem href='/' icon={<i className='tabler-smart-home' />}>
+        <MenuItem href='/home' icon={<i className='tabler-smart-home' />}>
           Home
         </MenuItem>
         <MenuItem href='/about' icon={<i className='tabler-info-circle' />}>
