@@ -11,10 +11,15 @@ dotenv.config();
 
 const app = express();
 
-// ⚠️ Dev-only: allows any origin
-app.use(cors());
-app.use(express.json());
+// ✅ Restrict CORS to local dev frontend
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true, // if you send cookies / auth headers
+  })
+);
 
+app.use(express.json());
 const PORT = process.env.PORT || 4000;
 
 async function bootstrap() {

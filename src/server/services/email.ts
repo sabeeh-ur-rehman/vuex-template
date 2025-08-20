@@ -1,5 +1,7 @@
+import { env } from 'process';
+
 const nodemailer = await import('nodemailer');
-import { env } from '../config/env';
+
 
 let transporter = nodemailer.createTransport(
   env.EMAIL_TRANSPORT === 'smtp'
